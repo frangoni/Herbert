@@ -3,7 +3,7 @@ const axios = require("axios");
 const crypto = require("crypto");
 const { apiKey, apiSecret } = process.env;
 const apiEP = "https://api.binance.com/api";
-const { getMA } = require("./utils");
+const { getMA, getEMA } = require("./utils");
 
 const signature = (query) => {
   return crypto.createHmac("sha256", apiSecret).update(query).digest("hex");
@@ -31,12 +31,13 @@ const getMyOrders = async (symbol) => {
   }
 };
 
-// getMyOrders(rsr);
-
 const getCandles = async (symbol, interval) => {
   try {
     const candles = await api.get("/v3/klines", {
-      params: { interval, symbol /* , startTime: new Date().setHours(new Date().getHours() - 1) */ },
+      params: {
+        interval,
+        symbol /* , startTime: new Date().setHours(new Date().getHours() - 1)//Si mandamos intervalos de tiempo no calcula EMA */,
+      },
     });
     return candles.data;
   } catch (error) {
@@ -44,6 +45,9 @@ const getCandles = async (symbol, interval) => {
   }
 };
 
-let interval = "1h";
+let interval = "4h";
 
-getCandles(rsr, interval).then((candles) => getMA(candles, 200, interval));
+getCandles(rsr, interval).then((candles) => {
+  getMA(candles, 20, interval);
+  getEMA(candles, 20, interval);
+});
