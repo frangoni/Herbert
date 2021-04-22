@@ -1,53 +1,61 @@
-require("dotenv").config();
-const axios = require("axios");
-const crypto = require("crypto");
-const { apiKey, apiSecret } = process.env;
-const apiEP = "https://api.binance.com/api";
 const { getMA, getEMA } = require("./utils");
+const { getCandles } = require("./controller");
 
-const signature = (query) => {
-  return crypto.createHmac("sha256", apiSecret).update(query).digest("hex");
+const pairs = {
+  eth: "ETHUSDT",
+  rsr: "RSRUSDT",
+  link: "LINKUSDT",
+  eos: "EOSUSDT",
 };
+let interval = "15m";
 
-const api = axios.create({
-  baseURL: apiEP,
-  headers: { "X-MBX-APIKEY": apiKey },
-});
+const estrategia = (pair) => {
+  let cruce = false;
+  let retest = false;
+  let date;
+  let buyPrice;
+  let sellPrice;
+  let sl;
 
-const eth = "ETHUSDT";
-const rsr = "RSRUSDT";
-
-const getMyOrders = async (symbol) => {
-  try {
-    const timestamp = Date.now();
-    const query = `timestamp=${timestamp}&symbol=${symbol}`;
-    const orderss = await api.get("/v3/allOrders", {
-      params: { timestamp, symbol, signature: signature(query) },
+  while (!cruce) {
+    getCandles(pair, interval).then(async (candles) => {
+      const ema10 = await getEMA(candles, 10, interval);
+      const ema20 = await getEMA(candles, 20, interval);
+      if (ema10 > ema20) {
+        date = Date.now();
+        cruce = true;
+      }
     });
-    console.log(orderss);
-  } catch (error) {
-    console.log("error");
-    console.log(error.response);
   }
-};
 
-const getCandles = async (symbol, interval) => {
-  try {
-    const candles = await api.get("/v3/klines", {
-      params: {
-        interval,
-        symbol /* , startTime: new Date().setHours(new Date().getHours() - 1)//Si mandamos intervalos de tiempo no calcula EMA */,
-      },
+  while (!retest) {
+    getCandles(pair, interval).then(async (candles) => {
+      const ema20 = await getEMA(candles, 20, interval);
+      if (candles[candles.length - 1][close] <= ema20 && ema10 > ema20) {
+        retest = true;
+        buyPrice = candles[candles.length - 1][close];
+        sl = price * 0.98;
+      }
     });
-    return candles.data;
-  } catch (error) {
-    console.log("ERROR", error);
   }
+
+  //MANDAR ORDEN
+
+  while (cruce) {
+    getCandles(pair, interval).then(async (candles) => {
+      const ema10 = await getEMA(candles, 10, interval);
+      const ema20 = await getEMA(candles, 20, interval);
+      if (ema10 < ema20) {
+        cruce = false;
+        sellPrice = candles[candles.length - 1][close];
+      }
+    });
+  }
+
+  //VENDER ORDEN
+  console.log(`El resultado de la orden fue de ${sellPrice - buyPrice}`);
+
+  estrategia(pair);
 };
 
-let interval = "4h";
-
-getCandles(rsr, interval).then((candles) => {
-  getMA(candles, 20, interval);
-  getEMA(candles, 20, interval);
-});
+estrategia(pairs.link);
