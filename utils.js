@@ -24,6 +24,27 @@ const smooth = (n) => {
   return 2 / (n + 1);
 };
 
+const engulfing = (candles) => {
+  let firstCandle = {
+    open: candles[0][1],
+    high: candles[0][2],
+    low: candles[0][3],
+    close: candles[0][4],
+  };
+  let secondCandle = {
+    open: candles[1][1],
+    high: candles[1][2],
+    low: candles[1][3],
+    close: candles[1][4],
+  };
+  if (secondCandle.low < firstCandle.low && secondCandle.high > firstCandle.high) {
+    //BULLISH
+    if (secondCandle.close > firstCandle.open && secondCandle.close > secondCandle.open) return "bullish";
+    //BEARISH
+    if (secondCandle.close < firstCandle.open && secondCandle.close < secondCandle.open) return "bearish";
+  }
+};
+
 /* const fibonacci = (candles) => {
   let min = 0;
   let max = 0;
@@ -42,4 +63,4 @@ const smooth = (n) => {
   return fibo;
 }; */
 
-module.exports = { getMA, getEMA };
+module.exports = { getMA, getEMA, engulfing };
