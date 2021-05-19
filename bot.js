@@ -1,4 +1,4 @@
-const { getMA, getEMA, engulfing, fractal, ohlc, macd } = require('./utils');
+const { MA, EMA, engulfing, fractal, RSI, MACD, ohlc } = require('./utils');
 const { getCandles, getLastCandles, getOpenOrders, createMarketOrder } = require('./controller');
 
 const pairs = {
@@ -30,8 +30,8 @@ const estrategia1 = async (pair) => {
 
   while (!cruce) {
     candles = await getCandles(pair, interval);
-    ema10 = getEMA(candles, 10, interval);
-    ema20 = getEMA(candles, 20, interval);
+    ema10 = EMA(candles, 10);
+    ema20 = EMA(candles, 20);
     if (ema10 > ema20) {
       date = Date.now();
       cruce = true;
@@ -42,8 +42,8 @@ const estrategia1 = async (pair) => {
 
   while (!retest) {
     candles = await getCandles(pair, interval);
-    ema10 = getEMA(candles, 10, interval);
-    ema20 = getEMA(candles, 20, interval);
+    ema10 = EMA(candles, 10);
+    ema20 = EMA(candles, 20);
     if (candles[candles.length - 1][ohlc.close] <= ema20 && ema10 > ema20) {
       retest = true;
       buyPrice = candles[candles.length - 1][ohlc.close];
@@ -54,8 +54,8 @@ const estrategia1 = async (pair) => {
 
   while (!cruce) {
     candles = await getCandles(pair, interval);
-    ema10 = getEMA(candles, 10, interval);
-    ema20 = getEMA(candles, 20, interval);
+    ema10 = EMA(candles, 10);
+    ema20 = EMA(candles, 20);
     if (ema10 < ema20) {
       cruce = false;
       sellPrice = candles[candles.length - 1][ohlc.close];
@@ -82,9 +82,9 @@ const estrategia2 = async (pair) => {
 
   while (buy || sell) {
     candles = await getCandles(pair, interval);
-    ema20 = getEMA(candles, 20, interval);
-    ema50 = getEMA(candles, 50, interval);
-    ema100 = getEMA(candles, 100, interval);
+    ema20 = EMA(candles, 20);
+    ema50 = EMA(candles, 50);
+    ema100 = EMA(candles, 100);
     close = candles[candles.length - 1][ohlc.close];
 
     if (ema20 > ema50 && ema50 > ema100) {
@@ -117,10 +117,14 @@ const estrategia2 = async (pair) => {
 
 setTimeout(async () => {
   let candles = await getCandles(pairs.rsr, interval);
+  console.log('PAIR', pairs.rsr);
+  console.log('INTERVAL', interval);
+
   let l = candles.length;
-  macd(candles, interval);
-  getEMA(candles, 10, interval);
+  MACD(candles);
+  EMA(candles, 10);
   engulfing(candles.slice(l - 3, l - 1));
   fractal(candles);
-  console.log(Date.now());
+  RSI(candles, 14);
+  console.log(new Date());
 }, 1000);

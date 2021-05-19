@@ -5,16 +5,16 @@ const ohlc = {
   close: 4,
 };
 
-const getMA = (candles, q, interval) => {
+const MA = (candles, q) => {
   let total = 0;
   candles.slice(candles.length - q, candles.length).map((candle) => {
     total += Number(candle[ohlc.close]);
   });
-  console.log(`MA(${q}) = ${total / q} para un intervalo de ${interval}`);
+  console.log(`MA(${q}) = ${total / q}`);
   return total / q;
 };
 
-const getEMA = (candles, q, interval) => {
+const EMA = (candles, q) => {
   let value = candles[0][ohlc.close];
   let EMAs = [value];
   //smooth
@@ -24,8 +24,28 @@ const getEMA = (candles, q, interval) => {
     value = Number(candle[ohlc.close]) * k + value * (1 - k);
     EMAs.push(value);
   });
-  console.log(`EMA(${q}) = ${EMAs.pop()} para un intervalo de ${interval}`);
+  console.log(`EMA(${q}) = ${EMAs.pop()}`);
   return EMAs.pop();
+};
+
+const RSI = (candles, q) => {
+  const l = candles.length;
+  let avgWin = 0;
+  let avgLoss = 0;
+
+  candles.slice(l - q, l).map((candle) => {
+    let value = (candle[ohlc.close] - candle[ohlc.open]) / q;
+    value > 0 ? (avgWin += value) : (avgLoss += value * -1);
+  });
+
+  /*let smooth = (avg, q){
+    return avg* (q-1) + 
+  } */
+
+  let rs = avgWin / avgLoss;
+  let rsi = 100 - 100 / (1 + rs);
+
+  console.log(`RSI(${q}) =`, rsi);
 };
 
 const engulfing = (candles) => {
@@ -68,13 +88,19 @@ const fractal = (candles) => {
   const bullishConditions =
     medio[ohlc.low] < izq1[ohlc.low] && medio[ohlc.low] < izq2[ohlc.low] && medio[ohlc.low] < der1[ohlc.low] && medio[ohlc.low] < der2[ohlc.low];
 
-  if (bearingConditions) return 'bearish';
-  if (bullishConditions) return 'bullish';
+  if (bearingConditions) {
+    console.log('Bearish Williams Fractal');
+    return 'bearish';
+  }
+  if (bullishConditions) {
+    console.log('Bullish Williams Fractal');
+    return 'bullish';
+  }
 
   return;
 };
 
-const macd = (candles, interval) => {
+const MACD = (candles) => {
   let ema12 = getEMAHist(candles, 12);
   let ema26 = getEMAHist(candles, 26);
   let macdHist = [];
@@ -85,7 +111,8 @@ const macd = (candles, interval) => {
   const macd = ema12.pop() - ema26.pop();
   const signal = getSignal(macdHist);
 
-  console.log('MACD', macd, 'SIGNAL', signal);
+  console.log('MACD =', macd);
+  console.log('SIGNAL =', signal);
   return { macd, signal };
 };
 
@@ -134,4 +161,4 @@ const getSignal = (macdHist) => {
   return fibo;
 }; */
 
-module.exports = { getMA, getEMA, engulfing, fractal, macd, ohlc };
+module.exports = { MA, EMA, engulfing, fractal, MACD, RSI, ohlc };
