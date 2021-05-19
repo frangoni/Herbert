@@ -1,14 +1,14 @@
-const { getMA, getEMA, engulfing, fractal, ohlc } = require("./utils");
-const { getCandles, getLastCandles, getOpenOrders, createMarketOrder } = require("./controller");
+const { getMA, getEMA, engulfing, fractal, ohlc, macd } = require('./utils');
+const { getCandles, getLastCandles, getOpenOrders, createMarketOrder } = require('./controller');
 
 const pairs = {
-  eth: "ETHUSDT",
-  rsr: "RSRUSDT",
-  link: "LINKUSDT",
-  eos: "EOSUSDT",
+  eth: 'ETHUSDT',
+  rsr: 'RSRUSDT',
+  link: 'LINKUSDT',
+  eos: 'EOSUSDT',
 };
 
-const interval = "1h";
+const interval = '1h';
 
 const estrategia1 = async (pair) => {
   let cruce = false;
@@ -52,7 +52,7 @@ const estrategia1 = async (pair) => {
 
   console.log(`El precio de compra fue de ${buyPrice}`);
 
-  while (cruce) {
+  while (!cruce) {
     candles = await getCandles(pair, interval);
     ema10 = getEMA(candles, 10, interval);
     ema20 = getEMA(candles, 20, interval);
@@ -60,6 +60,7 @@ const estrategia1 = async (pair) => {
       cruce = false;
       sellPrice = candles[candles.length - 1][ohlc.close];
     }
+    cruce = true;
   }
 
   //VENDER ORDEN
@@ -97,14 +98,14 @@ const estrategia2 = async (pair) => {
   while (fractal) {
     candles = await getLastCandles(pair, interval, 6);
     let trend = fractal(candles);
-    if (trend == "bullish" && buy) {
+    if (trend == 'bullish' && buy) {
       /*PLACE BUY ORDER
         SL = EMA 50
         TP = 1.5 x RISK
        ((ep - sl) * 1.5) + ep        
         */
     }
-    if (trend == "bearish" && sell) {
+    if (trend == 'bearish' && sell) {
       /*PLACE SELL ORDER
         SL = EMA 50
         TP = -1.5 x RISK        
@@ -113,3 +114,13 @@ const estrategia2 = async (pair) => {
     }
   }
 };
+
+setTimeout(async () => {
+  let candles = await getCandles(pairs.rsr, interval);
+  let l = candles.length;
+  macd(candles, interval);
+  getEMA(candles, 10, interval);
+  engulfing(candles.slice(l - 3, l - 1));
+  fractal(candles);
+  console.log(Date.now());
+}, 1000);

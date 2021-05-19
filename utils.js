@@ -43,9 +43,15 @@ const engulfing = (candles) => {
   };
   if (secondCandle.low < firstCandle.low && secondCandle.high > firstCandle.high) {
     //BULLISH
-    if (secondCandle.close > firstCandle.open && secondCandle.close > secondCandle.open) return "bullish";
+    if (secondCandle.close > firstCandle.open && secondCandle.close > secondCandle.open) {
+      console.log('Bullish fractal');
+      return 'bullish';
+    }
     //BEARISH
-    if (secondCandle.close < firstCandle.open && secondCandle.close < secondCandle.open) return "bearish";
+    if (secondCandle.close < firstCandle.open && secondCandle.close < secondCandle.open) {
+      console.log('Bearish fractal');
+      return 'bearish';
+    }
   }
 };
 
@@ -53,13 +59,61 @@ const fractal = (candles) => {
   const l = candles.length;
   //NO SE PUEDE TESTEAR SOBRE VELA ACTUAL
   const [izq2, izq1, medio, der1, der2] = candles.slice(l - 7, l - 2).map((candle) => candle);
-  const bearingConditions = medio[ohlc.high] > izq1[ohlc.high] > izq2[ohlc.high] > der1[ohlc.high] > der2[ohlc.high];
-  const bullishConditions = medio[ohlc.low] < izq1[ohlc.low] < izq2[ohlc.low] < der1[ohlc.low] < der2[ohlc.low];
+  //REVISAR
+  const bearingConditions =
+    medio[ohlc.high] > izq1[ohlc.high] &&
+    medio[ohlc.high] > izq2[ohlc.high] &&
+    medio[ohlc.high] > der1[ohlc.high] &&
+    medio[ohlc.high] > der2[ohlc.high];
+  const bullishConditions =
+    medio[ohlc.low] < izq1[ohlc.low] && medio[ohlc.low] < izq2[ohlc.low] && medio[ohlc.low] < der1[ohlc.low] && medio[ohlc.low] < der2[ohlc.low];
 
-  if (bearingConditions) return "bearish";
-  if (bullishConditions) return "bullish";
+  if (bearingConditions) return 'bearish';
+  if (bullishConditions) return 'bullish';
 
   return;
+};
+
+const macd = (candles, interval) => {
+  let ema12 = getEMAHist(candles, 12);
+  let ema26 = getEMAHist(candles, 26);
+  let macdHist = [];
+  for (let i = 9; i > 1; i--) {
+    macdHist.push(ema12[ema12.length - i] - ema26[ema26.length - i]);
+  }
+
+  const macd = ema12.pop() - ema26.pop();
+  const signal = getSignal(macdHist);
+
+  console.log('MACD', macd, 'SIGNAL', signal);
+  return { macd, signal };
+};
+
+const getEMAHist = (candles, q) => {
+  let value = candles[0][ohlc.close];
+  let EMAs = [value];
+  //smooth
+  let k = 2 / (q + 1);
+
+  candles.map((candle) => {
+    value = Number(candle[ohlc.close]) * k + value * (1 - k);
+    EMAs.push(value);
+  });
+  return EMAs;
+};
+
+const getSignal = (macdHist) => {
+  let value = macdHist[0];
+  let signal = [value];
+  //smooth
+  let k = 2 / (9 + 1);
+
+  macdHist.map((macd) => {
+    value = Number(macd) * k + value * (1 - k);
+    signal.push(value);
+  });
+
+  return signal.pop();
 };
 
 /* const fibonacci = (candles) => {
@@ -80,4 +134,4 @@ const fractal = (candles) => {
   return fibo;
 }; */
 
-module.exports = { getMA, getEMA, engulfing, fractal, ohlc };
+module.exports = { getMA, getEMA, engulfing, fractal, macd, ohlc };
