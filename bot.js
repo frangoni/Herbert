@@ -1,5 +1,6 @@
 const { MA, EMA, engulfing, fractal, RSI, MACD, ohlc } = require('./utils');
 const { getCandles, getLastCandles, getOpenOrders, createMarketOrder } = require('./controller');
+const chalk = require('chalk');
 
 const pairs = {
   eth: 'ETHUSDT',
@@ -8,7 +9,7 @@ const pairs = {
   eos: 'EOSUSDT',
 };
 
-const interval = '1h';
+const interval = '1m';
 
 const estrategia1 = async (pair) => {
   let cruce = false;
@@ -115,16 +116,16 @@ const estrategia2 = async (pair) => {
   }
 };
 
-setTimeout(async () => {
+setInterval(async () => {
   let candles = await getCandles(pairs.rsr, interval);
-  console.log('PAIR', pairs.rsr);
-  console.log('INTERVAL', interval);
-
+  console.log(chalk.cyanBright('PAIR ' + pairs.rsr));
+  console.log(chalk.cyanBright('INTERVAL ' + interval));
+  console.log(chalk.cyanBright(`${new Date().getHours()}:${new Date().getMinutes()}`));
   let l = candles.length;
-  MACD(candles);
+  /*   MACD(candles);
   EMA(candles, 10);
+  RSI(candles, 14); */
   engulfing(candles.slice(l - 3, l - 1));
   fractal(candles);
-  RSI(candles, 14);
-  console.log(new Date());
-}, 1000);
+  console.log('---------------------------');
+}, 60000);

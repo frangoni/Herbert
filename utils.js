@@ -1,3 +1,5 @@
+const chalk = require('chalk');
+
 const ohlc = {
   open: 1,
   high: 2,
@@ -10,7 +12,7 @@ const MA = (candles, q) => {
   candles.slice(candles.length - q, candles.length).map((candle) => {
     total += Number(candle[ohlc.close]);
   });
-  console.log(`MA(${q}) = ${total / q}`);
+  console.log(chalk.green(`MA(${q}) = ${total / q}`));
   return total / q;
 };
 
@@ -24,7 +26,7 @@ const EMA = (candles, q) => {
     value = Number(candle[ohlc.close]) * k + value * (1 - k);
     EMAs.push(value);
   });
-  console.log(`EMA(${q}) = ${EMAs.pop()}`);
+  console.log(chalk.green(`EMA(${q}) = ${EMAs.pop()}`));
   return EMAs.pop();
 };
 
@@ -45,7 +47,7 @@ const RSI = (candles, q) => {
   let rs = avgWin / avgLoss;
   let rsi = 100 - 100 / (1 + rs);
 
-  console.log(`RSI(${q}) =`, rsi);
+  console.log(chalk.green(`RSI(${q})= ` + rsi));
 };
 
 const engulfing = (candles) => {
@@ -64,12 +66,12 @@ const engulfing = (candles) => {
   if (secondCandle.low < firstCandle.low && secondCandle.high > firstCandle.high) {
     //BULLISH
     if (secondCandle.close > firstCandle.open && secondCandle.close > secondCandle.open) {
-      console.log('Bullish fractal');
+      console.log(chalk.magenta('Bullish engulfing'));
       return 'bullish';
     }
     //BEARISH
     if (secondCandle.close < firstCandle.open && secondCandle.close < secondCandle.open) {
-      console.log('Bearish fractal');
+      console.log(chalk.magenta('Bearish engulfing'));
       return 'bearish';
     }
   }
@@ -77,9 +79,9 @@ const engulfing = (candles) => {
 
 const fractal = (candles) => {
   const l = candles.length;
-  //NO SE PUEDE TESTEAR SOBRE VELA ACTUAL
-  const [izq2, izq1, medio, der1, der2] = candles.slice(l - 7, l - 2).map((candle) => candle);
-  //REVISAR
+  //NO SE PUEDE TESTEAR SOBRE VELA ACTUAL (A CHEQUEAR PORQUE BINANCE LO HACE)
+  const [izq2, izq1, medio, der1, der2] = candles.slice(l - 6, l - 1).map((candle) => candle);
+
   const bearingConditions =
     medio[ohlc.high] > izq1[ohlc.high] &&
     medio[ohlc.high] > izq2[ohlc.high] &&
@@ -89,11 +91,11 @@ const fractal = (candles) => {
     medio[ohlc.low] < izq1[ohlc.low] && medio[ohlc.low] < izq2[ohlc.low] && medio[ohlc.low] < der1[ohlc.low] && medio[ohlc.low] < der2[ohlc.low];
 
   if (bearingConditions) {
-    console.log('Bearish Williams Fractal');
+    console.log(chalk.magenta('Bearish Williams Fractal'));
     return 'bearish';
   }
   if (bullishConditions) {
-    console.log('Bullish Williams Fractal');
+    console.log(chalk.magenta('Bullish Williams Fractal'));
     return 'bullish';
   }
 
@@ -111,8 +113,8 @@ const MACD = (candles) => {
   const macd = ema12.pop() - ema26.pop();
   const signal = getSignal(macdHist);
 
-  console.log('MACD =', macd);
-  console.log('SIGNAL =', signal);
+  console.log(chalk.green('MACD= ' + macd));
+  console.log(chalk.green('SIGNAL= ' + signal));
   return { macd, signal };
 };
 

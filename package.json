@@ -10,6 +10,7 @@
   "license": "ISC",
   "dependencies": {
     "axios": "^0.21.1",
+    "chalk": "^4.1.1",
     "crypto": "^1.0.1",
     "date-fns": "^2.21.1",
     "dotenv": "^8.2.0"
