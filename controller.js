@@ -52,7 +52,7 @@ const getCandles = async (symbol, interval) => {
     });
     return candles.data;
   } catch (error) {
-    console.log('ERROR', error);
+    return [];
   }
 };
 
@@ -89,7 +89,8 @@ const getLastCandles = async (symbol, interval, q) => {
     });
     return candles.data;
   } catch (error) {
-    console.log('ERROR', error);
+    console.log('LAST CANDLES', error);
+    return [];
   }
 };
 

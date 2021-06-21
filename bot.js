@@ -1,6 +1,10 @@
-const { MA, EMA, engulfing, fractal, RSI, MACD, ohlc } = require("./utils");
-const { getCandles, getLastCandles, getOpenOrders, createMarketOrder } = require("./controller");
-const chalk = require("chalk");
+const { MA, EMA, engulfing, fractal, RSI, MACD, ohlc } = require('./utils');
+const { getCandles, getLastCandles, getOpenOrders, createMarketOrder } = require('./controller');
+const { greet } = require('./greet');
+const chalk = require('chalk');
+const sleep = (ms) => {
+  return new Promise((resolve) => setTimeout(resolve, ms));
+};
 
 const pairs = {
   eth: 'ETHUSDT',
@@ -9,7 +13,6 @@ const pairs = {
   eos: 'EOSUSDT',
   linketh: 'LINKETH',
 };
-
 const interval = '5m';
 
 const estrategia1 = async (pair) => {
@@ -32,36 +35,40 @@ const estrategia1 = async (pair) => {
   */
 
   //ARRANCAR CON EMA10 YA ARRIBA
-  while (cruce) {
-    candles = await getCandles(pair, interval);
-    if (candles?.length) {
-      ema10 = EMA(candles, 10);
-      ema20 = EMA(candles, 20);
-      if (ema10 < ema20) {
-        date = Date.now();
-        cruce = false;
+  try {
+    while (cruce) {
+      candles = await getCandles(pair, interval);
+      if (candles?.length) {
+        ema10 = EMA(candles, 10);
+        ema20 = EMA(candles, 20);
+        if (ema10 < ema20) {
+          date = Date.now();
+          cruce = false;
+        }
       }
     }
-  }
 
-  console.log(chalk.greenBright('Testeando cruce de EMAs...'));
-  console.log(chalk.magentaBright('-------------------------------'));
+    console.log(chalk.greenBright('Testeando cruce de EMAs...'));
+    console.log(chalk.magentaBright('-------------------------------'));
 
-  while (!cruce) {
-    candles = await getCandles(pair, interval);
-    if (candles?.length) {
-      ema10 = EMA(candles, 10);
-      ema20 = EMA(candles, 20);
+    while (!cruce) {
+      candles = await getCandles(pair, interval);
+      if (candles?.length) {
+        ema20 = EMA(candles, 20);
+        ema10 = EMA(candles, 10);
 
-      if (ema10 > ema20) {
-        date = Date.now();
-        cruce = true;
+        if (ema10 > ema20 * 1.00005) {
+          date = Date.now();
+          cruce = true;
+          buyPrice = candles[candles.length - 1][ohlc.close];
+        }
       }
     }
-  }
 
-  console.log(chalk.magentaBright(new Date()));
-  console.log(chalk.greenBright('CRUZÓ'));
+    console.log(chalk.magentaBright(new Date()));
+    console.log(chalk.greenBright('CRUZÓ'));
+
+    /* 
   console.log(chalk.greenBright('Retesteando...'));
   console.log(chalk.magentaBright('-------------------------------'));
 
@@ -75,30 +82,33 @@ const estrategia1 = async (pair) => {
         buyPrice = candles[candles.length - 1][ohlc.close];
       }
     }
-  }
-  console.log(chalk.magentaBright(new Date()));
-  console.log(chalk.greenBright(`El precio de compra fue de ${buyPrice}`));
-  console.log(chalk.greenBright('Esperando cruce para vender...'));
-  console.log(chalk.magentaBright('-------------------------------'));
+  } 
+  console.log(chalk.magentaBright(new Date()));*/
+    console.log(chalk.greenBright(`El precio de compra fue de ${buyPrice}`));
+    await sleep(300000);
+    console.log(chalk.greenBright('Esperando cruce para vender...'));
+    console.log(chalk.magentaBright('-------------------------------'));
 
-  while (cruce) {
-    candles = await getCandles(pair, interval);
-    if (candles?.length) {
-      ema10 = EMA(candles, 10);
-      ema20 = EMA(candles, 20);
-      if (ema10 < ema20) {
-        cruce = false;
-        sellPrice = candles[candles.length - 1][ohlc.close];
+    while (cruce) {
+      candles = await getCandles(pair, interval);
+      if (candles?.length) {
+        ema10 = EMA(candles, 10);
+        ema20 = EMA(candles, 20);
+        if (ema10 < ema20) {
+          cruce = false;
+          sellPrice = candles[candles.length - 1][ohlc.close];
+        }
       }
     }
+    //VENDER ORDEN
+    console.log(chalk.magentaBright(new Date()));
+    console.log(chalk.greenBright(`El precio de venta fue de ${sellPrice}`));
+    const result = `El resultado de la orden fue de ${(sellPrice / buyPrice - 1) * 100}%`;
+    let color = sellPrice - buyPrice > 0 ? chalk.greenBright : chalk.red;
+    console.log(color(result));
+  } catch (error) {
+    console.log('error :', error);
   }
-
-  //VENDER ORDEN
-  const result = `El resultado de la orden fue de ${(sellPrice / buyPrice - 1) * 100}%`;
-  console.log(chalk.magentaBright(new Date()));
-  let color = sellPrice - buyPrice > 0 ? chalk.greenBright : chalk.red;
-  console.log(color(result));
-
   estrategia1(pair);
 };
 
@@ -165,4 +175,5 @@ const indicatorTest = () => {
   }, 60000);
 };
 
+greet();
 estrategia1(pairs.linketh);
