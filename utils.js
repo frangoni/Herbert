@@ -114,9 +114,9 @@ const MACD = (candles) => {
   const macd = ema12.pop() - ema26.pop();
   const signal = getSignal(macdHist);
 
-  /*   console.log(chalk.green('MACD= ' + macd));
-  console.log(chalk.green('SIGNAL= ' + signal));
- */ return { macd, signal };
+  /*console.log(chalk.green('MACD= ' + macd));
+  console.log(chalk.green('SIGNAL= ' + signal));*/
+  return { macd, signal };
 };
 
 const getEMAHist = (candles, q) => {
