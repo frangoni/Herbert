@@ -1,15 +1,17 @@
-const { MA, EMA, engulfing, fractal, RSI, MACD, ohlc } = require('./utils');
-const { getCandles, getLastCandles, getOpenOrders, createMarketOrder } = require('./controller');
-const chalk = require('chalk');
+const { MA, EMA, engulfing, fractal, RSI, MACD, ohlc } = require("./utils");
+const { getCandles, getLastCandles, getOpenOrders, createMarketOrder } = require("./controller");
+const chalk = require("chalk");
 
 const pairs = {
-  eth: 'ETHUSDT',
-  rsr: 'RSRUSDT',
-  link: 'LINKUSDT',
-  eos: 'EOSUSDT',
+  eth: "ETHUSDT",
+  rsr: "RSRUSDT",
+  link: "LINKUSDT",
+  eos: "EOSUSDT",
+  ethlink: "ETHLINK",
 };
 
-const interval = '1m';
+getOpenOrders(pairs.link);
+const interval = "5m";
 
 const estrategia1 = async (pair) => {
   let cruce = false;
@@ -27,7 +29,8 @@ const estrategia1 = async (pair) => {
     3) Wait for bullish confirmation after the retest
     4) Enter after the confirmation candle
     5) Set a stop loss underneath the previous swing-log
-    6) Take profit once the EMAs cross the other direction (EMA 10 crosses BELOW EMA 20) */
+    6) Take profit once the EMAs cross the other direction (EMA 10 crosses BELOW EMA 20)
+  */
 
   while (!cruce) {
     candles = await getCandles(pair, interval);
@@ -39,8 +42,6 @@ const estrategia1 = async (pair) => {
     }
   }
 
-  //MANDAR ORDEN
-
   while (!retest) {
     candles = await getCandles(pair, interval);
     ema10 = EMA(candles, 10);
@@ -51,7 +52,7 @@ const estrategia1 = async (pair) => {
     }
   }
 
-  console.log(`El precio de compra fue de ${buyPrice}`);
+  //MANDAR ORDEN
 
   while (!cruce) {
     candles = await getCandles(pair, interval);
@@ -96,17 +97,19 @@ const estrategia2 = async (pair) => {
     }
   }
 
+  //A CHEQUEAR
+
   while (fractal) {
     candles = await getLastCandles(pair, interval, 6);
     let trend = fractal(candles);
-    if (trend == 'bullish' && buy) {
+    if (trend == "bullish" && buy) {
       /*PLACE BUY ORDER
         SL = EMA 50
         TP = 1.5 x RISK
        ((ep - sl) * 1.5) + ep        
         */
     }
-    if (trend == 'bearish' && sell) {
+    if (trend == "bearish" && sell) {
       /*PLACE SELL ORDER
         SL = EMA 50
         TP = -1.5 x RISK        
@@ -118,8 +121,8 @@ const estrategia2 = async (pair) => {
 
 setInterval(async () => {
   let candles = await getCandles(pairs.rsr, interval);
-  console.log(chalk.cyanBright('PAIR ' + pairs.rsr));
-  console.log(chalk.cyanBright('INTERVAL ' + interval));
+  console.log(chalk.cyanBright("PAIR " + pairs.rsr));
+  console.log(chalk.cyanBright("INTERVAL " + interval));
   console.log(chalk.cyanBright(`${new Date().getHours()}:${new Date().getMinutes()}`));
   let l = candles.length;
   /*   MACD(candles);
@@ -127,5 +130,5 @@ setInterval(async () => {
   RSI(candles, 14); */
   engulfing(candles.slice(l - 3, l - 1));
   fractal(candles);
-  console.log('---------------------------');
+  console.log("---------------------------");
 }, 60000);
