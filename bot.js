@@ -12,6 +12,7 @@ const pairs = {
   link: 'LINKUSDT',
   eos: 'EOSUSDT',
   linketh: 'LINKETH',
+  busdusdt: 'BUSDUSDT',
 };
 const interval = '5m';
 
@@ -156,6 +157,40 @@ const estrategia2 = async (pair) => {
   }
 };
 
+const stableScalp = async (pair) => {
+  let candles;
+  let buyPrice;
+  let sellPrice;
+  let compra = true;
+  let venta = true;
+  let contador = 0;
+  while (compra) {
+    candles = await getCandles(pair, interval);
+    buyPrice = candles[candles.length - 1][ohlc.low];
+    if (buyPrice <= 0.9995) {
+      //BUY
+      console.log(`Compra a ${buyPrice} el ${Date.now()}`);
+      compra = false;
+    }
+  }
+  while (venta) {
+    candles = await getCandles(pair, interval);
+    sellPrice = candles[candles.length - 1][ohlc.high];
+    if (sellPrice >= 1.0002) {
+      //SELL
+      console.log(`Venta a ${sellPrice} el ${Date.now()}`);
+      venta = false;
+    }
+  }
+  let resultado = sellPrice - buyPrice;
+  compra = true;
+  venta = true;
+  contador++;
+  console.log(`El resultado fue de ${resultado} ====> ${contador}`);
+
+  stableScalp(pair);
+};
+
 const indicatorTest = () => {
   setInterval(async () => {
     let candles = await getCandles(pairs.rsr, interval);
@@ -173,4 +208,5 @@ const indicatorTest = () => {
 };
 
 greet();
-estrategia1(pairs.linketh);
+
+stableScalp(pairs.busdusdt);
