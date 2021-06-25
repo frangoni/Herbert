@@ -1,4 +1,4 @@
-const chalk = require('chalk');
+const chalk = require("chalk");
 
 const ohlc = {
   open: 1,
@@ -68,12 +68,12 @@ const engulfing = (candles) => {
     //BULLISH
     if (secondCandle.close > firstCandle.open && secondCandle.close > secondCandle.open) {
       /*       console.log(chalk.magenta('Bullish engulfing'));
-       */ return 'bullish';
+       */ return "bullish";
     }
     //BEARISH
     if (secondCandle.close < firstCandle.open && secondCandle.close < secondCandle.open) {
       /*       console.log(chalk.magenta('Bearish engulfing'));
-       */ return 'bearish';
+       */ return "bearish";
     }
   }
 };
@@ -89,15 +89,18 @@ const fractal = (candles) => {
     medio[ohlc.high] > der1[ohlc.high] &&
     medio[ohlc.high] > der2[ohlc.high];
   const bullishConditions =
-    medio[ohlc.low] < izq1[ohlc.low] && medio[ohlc.low] < izq2[ohlc.low] && medio[ohlc.low] < der1[ohlc.low] && medio[ohlc.low] < der2[ohlc.low];
+    medio[ohlc.low] < izq1[ohlc.low] &&
+    medio[ohlc.low] < izq2[ohlc.low] &&
+    medio[ohlc.low] < der1[ohlc.low] &&
+    medio[ohlc.low] < der2[ohlc.low];
 
   if (bearingConditions) {
     /*     console.log(chalk.magenta('Bearish Williams Fractal'));
-     */ return 'bearish';
+     */ return "bearish";
   }
   if (bullishConditions) {
     /*     console.log(chalk.magenta('Bullish Williams Fractal'));
-     */ return 'bullish';
+     */ return "bullish";
   }
 
   return;
@@ -114,8 +117,8 @@ const MACD = (candles) => {
   const macd = ema12.pop() - ema26.pop();
   const signal = getSignal(macdHist);
 
-  /*console.log(chalk.green('MACD= ' + macd));
-  console.log(chalk.green('SIGNAL= ' + signal));*/
+  console.log(chalk.green("MACD= " + macd));
+  console.log(chalk.green("SIGNAL= " + signal));
   return { macd, signal };
 };
 

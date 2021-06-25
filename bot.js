@@ -1,24 +1,24 @@
-const { MA, EMA, engulfing, fractal, RSI, MACD, ohlc } = require('./utils');
-const { getCandles, getLastCandles, getOpenOrders, createMarketOrder } = require('./controller');
-const { greet } = require('./greet');
-const chalk = require('chalk');
+const { MA, EMA, engulfing, fractal, RSI, MACD, ohlc } = require("./utils");
+const { getCandles, getLastCandles, getOpenOrders, createMarketOrder } = require("./controller");
+const { greet } = require("./greet");
+const chalk = require("chalk");
 const sleep = (ms) => {
   return new Promise((resolve) => setTimeout(resolve, ms));
 };
 
 const pairs = {
-  eth: 'ETHUSDT',
-  rsr: 'RSRUSDT',
-  link: 'LINKUSDT',
-  eos: 'EOSUSDT',
-  linketh: 'LINKETH',
-  busdusdt: 'BUSDUSDT',
+  eth: "ETHUSDT",
+  btc: "BTCUSDT",
+  rsr: "RSRUSDT",
+  link: "LINKUSDT",
+  eos: "EOSUSDT",
+  linketh: "LINKETH",
+  busdusdt: "BUSDUSDT",
 };
-const interval = '5m';
+const interval = "1h";
 
 const estrategia1 = async (pair) => {
   let cruce = true;
-  let retest = false;
   let candles;
   let ema10;
   let ema20;
@@ -27,15 +27,6 @@ const estrategia1 = async (pair) => {
   let sellPrice;
   let sl;
 
-  /*1) Wait for an uptrend (EMA 10 crosses ABOVE EMA 20)
-    2) Wait for price to breakout then retest the EMAs( either one (based on the trend type))
-    3) Wait for bullish confirmation after the retest
-    4) Enter after the confirmation candle
-    5) Set a stop loss underneath the previous swing-log
-    6) Take profit once the EMAs cross the other direction (EMA 10 crosses BELOW EMA 20)
-  */
-
-  //ARRANCAR CON EMA10 YA ARRIBA
   try {
     while (cruce) {
       candles = await getCandles(pair, interval);
@@ -49,8 +40,8 @@ const estrategia1 = async (pair) => {
       }
     }
 
-    console.log(chalk.greenBright('Testeando cruce de EMAs...'));
-    console.log(chalk.magentaBright('-------------------------------'));
+    console.log(chalk.greenBright("Testeando cruce de EMAs..."));
+    console.log(chalk.magentaBright("-------------------------------"));
 
     while (!cruce) {
       candles = await getCandles(pair, interval);
@@ -67,35 +58,18 @@ const estrategia1 = async (pair) => {
     }
 
     console.log(chalk.magentaBright(new Date()));
-    console.log(chalk.greenBright('CRUZÓ'));
-
-    /* 
-  console.log(chalk.greenBright('Retesteando...'));
-  console.log(chalk.magentaBright('-------------------------------'));
-
-  while (!retest) {
-    candles = await getCandles(pair, interval);
-    if (candles?.length) {
-      ema10 = EMA(candles, 10);
-      ema20 = EMA(candles, 20);
-      if (candles[candles.length - 1][ohlc.low] <= ema20 && ema10 > ema20) {
-        retest = true;
-        buyPrice = candles[candles.length - 1][ohlc.close];
-      }
-    }
-  } 
-  console.log(chalk.magentaBright(new Date()));*/
+    console.log(chalk.greenBright("CRUZÓ"));
     console.log(chalk.greenBright(`El precio de compra fue de ${buyPrice}`));
     await sleep(300000);
-    console.log(chalk.greenBright('Esperando cruce para vender...'));
-    console.log(chalk.magentaBright('-------------------------------'));
+    console.log(chalk.greenBright("Esperando cruce para vender..."));
+    console.log(chalk.magentaBright("-------------------------------"));
 
     while (cruce) {
       candles = await getCandles(pair, interval);
       if (candles?.length) {
+        ema5 = EMA(candles, 5);
         ema10 = EMA(candles, 10);
-        ema20 = EMA(candles, 20);
-        if (ema10 < ema20) {
+        if (ema5 < ema10) {
           cruce = false;
           sellPrice = candles[candles.length - 1][ohlc.close];
         }
@@ -108,7 +82,7 @@ const estrategia1 = async (pair) => {
     let color = sellPrice - buyPrice > 0 ? chalk.greenBright : chalk.red;
     console.log(color(result));
   } catch (error) {
-    console.log('error :', error);
+    console.log("error :", error);
   }
   estrategia1(pair);
 };
@@ -158,58 +132,24 @@ const estrategia2 = async (pair) => {
         */
     }
   }
+  estrategia2(pair);
 };
 
-const stableScalp = async (pair) => {
-  let candles;
-  let buyPrice;
-  let sellPrice;
-  let compra = true;
-  let venta = true;
-  let contador = 0;
-  while (compra) {
-    candles = await getCandles(pair, interval);
-    buyPrice = candles[candles.length - 1][ohlc.low];
-    if (buyPrice <= 0.9995) {
-      //BUY
-      console.log(`Compra a ${buyPrice} el ${Date.now()}`);
-      compra = false;
-    }
-  }
-  while (venta) {
-    candles = await getCandles(pair, interval);
-    sellPrice = candles[candles.length - 1][ohlc.high];
-    if (sellPrice >= 1.0002) {
-      //SELL
-      console.log(`Venta a ${sellPrice} el ${Date.now()}`);
-      venta = false;
-    }
-  }
-  let resultado = sellPrice - buyPrice;
-  compra = true;
-  venta = true;
-  contador++;
-  console.log(`El resultado fue de ${resultado} ====> ${contador}`);
-
-  stableScalp(pair);
-};
-
-const indicatorTest = () => {
+const indicatorTest = (pair) => {
   setInterval(async () => {
-    let candles = await getCandles(pairs.rsr, interval);
-    console.log(chalk.cyanBright('PAIR ' + pairs.rsr));
-    console.log(chalk.cyanBright('INTERVAL ' + interval));
+    let candles = await getCandles(pair, interval);
+    console.log(chalk.cyanBright("PAIR " + pair));
+    console.log(chalk.cyanBright("INTERVAL " + interval));
     console.log(chalk.cyanBright(`${new Date().getHours()}:${new Date().getMinutes()}`));
     let l = candles.length;
-    /*   MACD(candles);
-  EMA(candles, 10);
-  RSI(candles, 14); */
+    MACD(candles);
+    /*  EMA(candles, 10);
+    RSI(candles, 14); 
     engulfing(candles.slice(l - 3, l - 1));
-    fractal(candles);
-    console.log('---------------------------');
-  }, 60000);
+    fractal(candles);*/
+    console.log("---------------------------");
+  }, 5000);
 };
 
 greet();
-
-stableScalp(pairs.busdusdt);
+estrategia1(pairs.linketh);
