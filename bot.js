@@ -1,21 +1,21 @@
-const { MA, EMA, engulfing, fractal, RSI, MACD, ohlc } = require("./utils");
-const { getCandles, getLastCandles, getOpenOrders, createMarketOrder } = require("./controller");
-const { greet } = require("./greet");
-const chalk = require("chalk");
+const { MA, EMA, engulfing, fractal, RSI, MACD, ohlc } = require('./utils');
+const { getCandles, getLastCandles, getOpenOrders, createMarketOrder } = require('./controller');
+const { greet } = require('./greet');
+const chalk = require('chalk');
+
 const sleep = (ms) => {
   return new Promise((resolve) => setTimeout(resolve, ms));
 };
-
 const pairs = {
-  eth: "ETHUSDT",
-  btc: "BTCUSDT",
-  rsr: "RSRUSDT",
-  link: "LINKUSDT",
-  eos: "EOSUSDT",
-  linketh: "LINKETH",
-  busdusdt: "BUSDUSDT",
+  eth: 'ETHUSDT',
+  btc: 'BTCUSDT',
+  rsr: 'RSRUSDT',
+  link: 'LINKUSDT',
+  eos: 'EOSUSDT',
+  linketh: 'LINKETH',
+  busdusdt: 'BUSDUSDT',
 };
-const interval = "1h";
+const interval = '1h';
 
 const estrategia1 = async (pair) => {
   let cruce = true;
@@ -40,8 +40,8 @@ const estrategia1 = async (pair) => {
       }
     }
 
-    console.log(chalk.greenBright("Testeando cruce de EMAs..."));
-    console.log(chalk.magentaBright("-------------------------------"));
+    console.log(chalk.greenBright('Testeando cruce de EMAs...'));
+    console.log(chalk.magentaBright('-------------------------------'));
 
     while (!cruce) {
       candles = await getCandles(pair, interval);
@@ -58,11 +58,11 @@ const estrategia1 = async (pair) => {
     }
 
     console.log(chalk.magentaBright(new Date()));
-    console.log(chalk.greenBright("CRUZÓ"));
+    console.log(chalk.greenBright('CRUZÓ'));
     console.log(chalk.greenBright(`El precio de compra fue de ${buyPrice}`));
     await sleep(300000);
-    console.log(chalk.greenBright("Esperando cruce para vender..."));
-    console.log(chalk.magentaBright("-------------------------------"));
+    console.log(chalk.greenBright('Esperando cruce para vender...'));
+    console.log(chalk.magentaBright('-------------------------------'));
 
     while (cruce) {
       candles = await getCandles(pair, interval);
@@ -82,7 +82,7 @@ const estrategia1 = async (pair) => {
     let color = sellPrice - buyPrice > 0 ? chalk.greenBright : chalk.red;
     console.log(color(result));
   } catch (error) {
-    console.log("error :", error);
+    console.log('error :', error);
   }
   estrategia1(pair);
 };
@@ -117,14 +117,14 @@ const estrategia2 = async (pair) => {
   while (fractal) {
     candles = await getLastCandles(pair, interval, 6);
     let trend = fractal(candles);
-    if (trend == "bullish" && buy) {
+    if (trend == 'bullish' && buy) {
       /*PLACE BUY ORDER
         SL = EMA 50
         TP = 1.5 x RISK
        ((ep - sl) * 1.5) + ep        
         */
     }
-    if (trend == "bearish" && sell) {
+    if (trend == 'bearish' && sell) {
       /*PLACE SELL ORDER
         SL = EMA 50
         TP = -1.5 x RISK        
@@ -138,8 +138,8 @@ const estrategia2 = async (pair) => {
 const indicatorTest = (pair) => {
   setInterval(async () => {
     let candles = await getCandles(pair, interval);
-    console.log(chalk.cyanBright("PAIR " + pair));
-    console.log(chalk.cyanBright("INTERVAL " + interval));
+    console.log(chalk.cyanBright('PAIR ' + pair));
+    console.log(chalk.cyanBright('INTERVAL ' + interval));
     console.log(chalk.cyanBright(`${new Date().getHours()}:${new Date().getMinutes()}`));
     let l = candles.length;
     MACD(candles);
@@ -147,7 +147,7 @@ const indicatorTest = (pair) => {
     RSI(candles, 14); 
     engulfing(candles.slice(l - 3, l - 1));
     fractal(candles);*/
-    console.log("---------------------------");
+    console.log('---------------------------');
   }, 5000);
 };
 
