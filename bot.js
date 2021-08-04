@@ -1,10 +1,16 @@
 const { MA, EMA, engulfing, fractal, RSI, MACD, ohlc } = require('./utils');
-const { getCandles, getLastCandles, getOpenOrders, createMarketOrder } = require('./controller');
+const {
+  getCandles,
+  getLastCandles,
+  getOpenOrders,
+  createMarketOrder,
+  getMarketInfo,
+} = require('./controller');
 const { greet } = require('./greet');
 const chalk = require('chalk');
 
-const sleep = (ms) => {
-  return new Promise((resolve) => setTimeout(resolve, ms));
+const sleep = ms => {
+  return new Promise(resolve => setTimeout(resolve, ms));
 };
 const pairs = {
   eth: 'ETHUSDT',
@@ -17,7 +23,7 @@ const pairs = {
 };
 const interval = '1h';
 
-const estrategia1 = async (pair) => {
+const estrategia1 = async pair => {
   let cruce = true;
   let candles;
   let ema10;
@@ -87,7 +93,7 @@ const estrategia1 = async (pair) => {
   estrategia1(pair);
 };
 
-const estrategia2 = async (pair) => {
+const estrategia2 = async pair => {
   let buy = false;
   let sell = false;
   let fractal = false;
@@ -135,21 +141,28 @@ const estrategia2 = async (pair) => {
   estrategia2(pair);
 };
 
-const indicatorTest = (pair) => {
+const indicatorTest = pair => {
   setInterval(async () => {
     let candles = await getCandles(pair, interval);
+    let hours = new Date().getHours();
+    let minutes = new Date().getMinutes();
     console.log(chalk.cyanBright('PAIR ' + pair));
     console.log(chalk.cyanBright('INTERVAL ' + interval));
-    console.log(chalk.cyanBright(`${new Date().getHours()}:${new Date().getMinutes()}`));
+    console.log(
+      chalk.cyanBright(`${hours}:${minutes.toString().length == 1 ? `0${minutes}` : minutes}`)
+    );
     let l = candles.length;
     MACD(candles);
-    /*  EMA(candles, 10);
-    RSI(candles, 14); 
-    engulfing(candles.slice(l - 3, l - 1));
-    fractal(candles);*/
+    EMA(candles, 5);
+    EMA(candles, 10);
+    EMA(candles, 20);
+    RSI(candles, 14);
+    /*engulfing(candles.slice(l - 3, l - 1));
+    fractal(candles); */
     console.log('---------------------------');
   }, 5000);
 };
 
 greet();
-estrategia1(pairs.linketh);
+
+indicatorTest(pairs.eth);

@@ -2,10 +2,10 @@ require('dotenv').config();
 const axios = require('axios');
 const crypto = require('crypto');
 const { apiKey, apiSecret } = process.env;
-const apiEP = 'https://api.binance.com/api';
+const apiEP = 'https://fapi.binance.com/fapi';
 const { sub } = require('date-fns');
 
-const signature = (query) => {
+const signature = query => {
   return crypto.createHmac('sha256', apiSecret).update(query).digest('hex');
 };
 
@@ -14,7 +14,7 @@ const api = axios.create({
   headers: { 'X-MBX-APIKEY': apiKey },
 });
 
-const getOpenOrders = async (symbol) => {
+const getOpenOrders = async symbol => {
   try {
     const timestamp = Date.now();
     const query = `timestamp=${timestamp}&symbol=${symbol}`;
@@ -44,7 +44,7 @@ const createMarketOrder = async (symbol, side = 'BUY') => {
 
 const getCandles = async (symbol, interval) => {
   try {
-    const candles = await api.get('/v3/klines', {
+    const candles = await api.get('/v1/klines', {
       params: {
         interval,
         symbol,
@@ -52,6 +52,7 @@ const getCandles = async (symbol, interval) => {
     });
     return candles.data;
   } catch (error) {
+    console.log('error :', error);
     return [];
   }
 };
@@ -80,7 +81,7 @@ const getLastCandles = async (symbol, interval, q) => {
   let startTime = sub(new Date(), amount).getTime();
 
   try {
-    const candles = await api.get('/v3/klines', {
+    const candles = await api.get('/v1/klines', {
       params: {
         interval,
         symbol,
@@ -94,4 +95,15 @@ const getLastCandles = async (symbol, interval, q) => {
   }
 };
 
-module.exports = { getCandles, getOpenOrders, getLastCandles, createMarketOrder };
+const getMarketInfo = async () => {
+  try {
+    const info = await api.get('/v1/exchangeInfo');
+    console.log('info :', info);
+    return info;
+  } catch (error) {
+    console.log('MARKET INFO', error);
+    return [];
+  }
+};
+
+module.exports = { getCandles, getOpenOrders, getLastCandles, createMarketOrder, getMarketInfo };

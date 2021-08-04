@@ -1,4 +1,4 @@
-const chalk = require("chalk");
+const chalk = require('chalk');
 
 const ohlc = {
   open: 1,
@@ -9,7 +9,7 @@ const ohlc = {
 
 const MA = (candles, q) => {
   let total = 0;
-  candles.slice(candles.length - q, candles.length).map((candle) => {
+  candles.slice(candles.length - q, candles.length).map(candle => {
     total += Number(candle[ohlc.close]);
   });
   /*console.log(chalk.green(`MA(${q}) = ${total / q}`));*/
@@ -22,11 +22,11 @@ const EMA = (candles, q) => {
   //smooth
   let k = 2 / (q + 1);
 
-  candles.map((candle) => {
+  candles.map(candle => {
     value = Number(candle[ohlc.close]) * k + value * (1 - k);
     EMAs.push(value);
   });
-  /*console.log(chalk.green(`EMA(${q}) = ${EMAs.pop()}`));*/
+  console.log(chalk.green(`EMA(${q}) = ${EMAs.pop()}`));
   return EMAs.pop();
 };
 
@@ -35,7 +35,7 @@ const RSI = (candles, q) => {
   let avgWin = 0;
   let avgLoss = 0;
 
-  candles.slice(l - q, l).map((candle) => {
+  candles.slice(l - q, l).map(candle => {
     let value = (candle[ohlc.close] - candle[ohlc.open]) / q;
     value > 0 ? (avgWin += value) : (avgLoss += value * -1);
   });
@@ -47,11 +47,10 @@ const RSI = (candles, q) => {
   let rs = avgWin / avgLoss;
   let rsi = 100 - 100 / (1 + rs);
 
-  /*   console.log(chalk.green(`RSI(${q})= ` + rsi));
-   */
+  console.log(chalk.green(`RSI(${q})= ` + rsi));
 };
 
-const engulfing = (candles) => {
+const engulfing = candles => {
   let firstCandle = {
     open: candles[0][ohlc.open],
     high: candles[0][ohlc.high],
@@ -68,20 +67,20 @@ const engulfing = (candles) => {
     //BULLISH
     if (secondCandle.close > firstCandle.open && secondCandle.close > secondCandle.open) {
       /*       console.log(chalk.magenta('Bullish engulfing'));
-       */ return "bullish";
+       */ return 'bullish';
     }
     //BEARISH
     if (secondCandle.close < firstCandle.open && secondCandle.close < secondCandle.open) {
       /*       console.log(chalk.magenta('Bearish engulfing'));
-       */ return "bearish";
+       */ return 'bearish';
     }
   }
 };
 
-const fractal = (candles) => {
+const fractal = candles => {
   const l = candles.length;
   //NO SE PUEDE TESTEAR SOBRE VELA ACTUAL (A CHEQUEAR PORQUE BINANCE LO HACE)
-  const [izq2, izq1, medio, der1, der2] = candles.slice(l - 6, l - 1).map((candle) => candle);
+  const [izq2, izq1, medio, der1, der2] = candles.slice(l - 6, l - 1).map(candle => candle);
 
   const bearingConditions =
     medio[ohlc.high] > izq1[ohlc.high] &&
@@ -96,17 +95,17 @@ const fractal = (candles) => {
 
   if (bearingConditions) {
     /*     console.log(chalk.magenta('Bearish Williams Fractal'));
-     */ return "bearish";
+     */ return 'bearish';
   }
   if (bullishConditions) {
     /*     console.log(chalk.magenta('Bullish Williams Fractal'));
-     */ return "bullish";
+     */ return 'bullish';
   }
 
   return;
 };
 
-const MACD = (candles) => {
+const MACD = candles => {
   let ema12 = getEMAHist(candles, 12);
   let ema26 = getEMAHist(candles, 26);
   let macdHist = [];
@@ -117,31 +116,29 @@ const MACD = (candles) => {
   const macd = ema12.pop() - ema26.pop();
   const signal = getSignal(macdHist);
 
-  console.log(chalk.green("MACD= " + macd));
-  console.log(chalk.green("SIGNAL= " + signal));
+  console.log(chalk.green('MACD= ' + macd));
+  console.log(chalk.green('SIGNAL= ' + signal));
   return { macd, signal };
 };
 
 const getEMAHist = (candles, q) => {
   let value = candles[0][ohlc.close];
   let EMAs = [value];
-  //smooth
   let k = 2 / (q + 1);
 
-  candles.map((candle) => {
+  candles.map(candle => {
     value = Number(candle[ohlc.close]) * k + value * (1 - k);
     EMAs.push(value);
   });
   return EMAs;
 };
 
-const getSignal = (macdHist) => {
+const getSignal = macdHist => {
   let value = macdHist[0];
   let signal = [value];
-  //smooth
   let k = 2 / (9 + 1);
 
-  macdHist.map((macd) => {
+  macdHist.map(macd => {
     value = Number(macd) * k + value * (1 - k);
     signal.push(value);
   });
@@ -149,11 +146,12 @@ const getSignal = (macdHist) => {
   return signal.pop();
 };
 
-/* const fibonacci = (candles) => {
+const fibonacci = candles => {
+  //NO FUNCIONA
   let min = 0;
   let max = 0;
 
-  candles.map((candle) => {
+  candles.map(candle => {
     if (candle[2] > max) max = candle[2];
     if (candle[3] < min) min = candle[3];
   });
@@ -162,9 +160,9 @@ const getSignal = (macdHist) => {
   let fibo = { 0: max, 0.236: 0.236, 0.382: 0.382, 0.5: avg, 0.618: 0.618, 0.786: 0.786, 1: min };
 
   for (const perc in fibo) {
-    if (perc != [0,1,5]) fibo[perc] = fibo[perc] * avg; //VER CALCULO PARA OTROS COEF
+    if (perc != [0, 1, 5]) fibo[perc] = fibo[perc] * avg; //VER CALCULO PARA OTROS COEF
   }
   return fibo;
-}; */
+};
 
 module.exports = { MA, EMA, engulfing, fractal, MACD, RSI, ohlc };
