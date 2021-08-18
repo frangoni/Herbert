@@ -26,7 +26,7 @@ const EMA = (candles, q) => {
     value = Number(candle[ohlc.close]) * k + value * (1 - k);
     EMAs.push(value);
   });
-  console.log(chalk.green(`EMA(${q}) = ${EMAs.pop()}`));
+  /* console.log(chalk.green(`EMA(${q}) = ${EMAs.pop()}`)); */
   return EMAs.pop();
 };
 
@@ -94,12 +94,12 @@ const fractal = candles => {
     medio[ohlc.low] < der2[ohlc.low];
 
   if (bearingConditions) {
-    /*     console.log(chalk.magenta('Bearish Williams Fractal'));
-     */ return 'bearish';
+    /* console.log(chalk.magenta('Bearish Williams Fractal'));*/
+    return 'bearish';
   }
   if (bullishConditions) {
-    /*     console.log(chalk.magenta('Bullish Williams Fractal'));
-     */ return 'bullish';
+    /*console.log(chalk.magenta('Bullish Williams Fractal'));*/
+    return 'bullish';
   }
 
   return;
@@ -116,8 +116,8 @@ const MACD = candles => {
   const macd = ema12.pop() - ema26.pop();
   const signal = getSignal(macdHist);
 
-  console.log(chalk.green('MACD= ' + macd));
-  console.log(chalk.green('SIGNAL= ' + signal));
+  /* console.log(chalk.green('MACD= ' + macd));
+  console.log(chalk.green('SIGNAL= ' + signal)); */
   return { macd, signal };
 };
 
