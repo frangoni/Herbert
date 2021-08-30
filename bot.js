@@ -6,13 +6,13 @@ const pairs = {
   btc: 'BTCUSDT',
   rsr: 'RSRUSDT',
   link: 'LINKUSDT',
+  sol: 'SOLUSDT',
   eos: 'EOSUSDT',
   linketh: 'LINKETH',
-  busdusdt: 'BUSDUSDT',
 };
 const interval = '1h';
 
 greet();
 
-estrategia1(pairs.eth, interval);
-/*indicatorTest(pairs.eth, interval);*/
+/* estrategia1(pairs.eth, interval); */
+indicatorTest(pairs.sol, interval);

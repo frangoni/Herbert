@@ -149,14 +149,15 @@ const grid = async (pair, interval) => {
 };
 
 const indicatorTest = (pair, interval) => {
+  const handleHour = str => {
+    return str.toString().length == 1 ? `0${str}` : str;
+  };
   setInterval(async () => {
-    const handleHour = str => {
-      return str.toString().length == 1 ? `0${str}` : str;
-    };
     let candles = await getCandles(pair, interval);
-    let hours = new Date().getHours();
-    let minutes = new Date().getMinutes();
-    let seconds = new Date().getSeconds();
+    let now = new Date();
+    let hours = now.getHours();
+    let minutes = now.getMinutes();
+    let seconds = now.getSeconds();
     console.log(chalk.cyanBright('PAIR ' + pair));
     console.log(chalk.cyanBright('INTERVAL ' + interval));
     console.log(chalk.cyanBright(`${hours}:${handleHour(minutes)}:${handleHour(seconds)}`));
