@@ -1,4 +1,4 @@
-const { indicatorTest, estrategia2, grid, estrategia1 } = require('./strategies');
+const { indicatorTest, estrategia2, grid, estrategia1, rsimacd } = require('./strategies');
 const { greet } = require('./greet');
 
 const pairs = {
@@ -10,9 +10,10 @@ const pairs = {
   eos: 'EOSUSDT',
   linketh: 'LINKETH',
 };
-const interval = '1h';
+const interval = '5m';
 
 greet();
 
-/* estrategia1(pairs.eth, interval); */
-indicatorTest(pairs.sol, interval);
+/* estrategia1(pairs.eth, interval);
+indicatorTest(pairs.sol, interval); */
+rsimacd(pairs.sol, interval);

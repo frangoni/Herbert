@@ -1,5 +1,5 @@
 const chalk = require('chalk');
-const log = true;
+const log = false;
 const ohlc = {
   open: 1,
   high: 2,
@@ -30,7 +30,7 @@ const EMA = (candles, q) => {
   return EMAs.pop();
 };
 
-const RSI = (candles, q) => {
+const RSI = (candles, q = 14) => {
   const l = candles.length;
   let avgWin = 0;
   let avgLoss = 0;
@@ -115,7 +115,7 @@ const MACD = candles => {
   const macd = ema12.pop() - ema26.pop();
   const signal = getSignal(macdHist);
 
-  log && console.log(chalk.green(`MACD: ${macd}`));
+  log && console.log(chalk.green(`MACD = ${macd}`));
   log && console.log(chalk.green(`SIGNAL = ${signal}`));
   return { macd, signal };
 };
