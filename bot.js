@@ -10,10 +10,11 @@ const pairs = {
   eos: 'EOSUSDT',
   linketh: 'LINKETH',
 };
-const interval = '5m';
+const interval = '15m';
 
 greet();
 
 /* estrategia1(pairs.eth, interval);
-indicatorTest(pairs.sol, interval); */
-rsimacd(pairs.sol, interval);
+rsimacd(pairs.sol, interval); */
+
+indicatorTest(pairs.sol, interval);

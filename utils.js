@@ -1,5 +1,5 @@
 const chalk = require('chalk');
-const log = false;
+const log = true;
 const ohlc = {
   open: 1,
   high: 2,
@@ -28,6 +28,32 @@ const EMA = (candles, q) => {
   });
   log && console.log(chalk.green(`EMA(${q}) = ${EMAs.pop()}`));
   return EMAs.pop();
+};
+
+const bollingerBands = (candles, q = 20) => {
+  let totalCandles = candles.slice(candles.length - q, candles.length);
+
+  let middle = MA(candles, q);
+  let total = 0;
+  let std = 0;
+
+  for (let i = 0; i < totalCandles.length; i++) {
+    total += Number(totalCandles[i][ohlc.close]);
+  }
+
+  let avg = total / q;
+
+  for (let i = 0; i < totalCandles.length; i++) {
+    std += Math.pow(totalCandles[i][ohlc.close] - avg, 2);
+  }
+
+  std = Math.sqrt(std / q);
+
+  let upper = middle + 2 * std;
+  let lower = middle - 2 * std;
+  log && console.log(chalk.greenBright(`---------------BOLLINGER BANDS---------------`));
+  log && console.log(chalk.green(`Upper: ${upper}\nMiddle: ${middle}\nLower:${lower}`));
+  return { upper, middle, lower };
 };
 
 const RSI = (candles, q = 14) => {
@@ -164,4 +190,4 @@ const fibonacci = candles => {
   return fibo;
 };
 
-module.exports = { MA, EMA, engulfing, fractal, MACD, RSI, ohlc };
+module.exports = { MA, EMA, engulfing, fractal, MACD, RSI, bollingerBands, ohlc };

@@ -1,5 +1,5 @@
 const chalk = require('chalk');
-const { MA, EMA, engulfing, fractal, RSI, MACD, ohlc } = require('./utils');
+const { MA, EMA, engulfing, fractal, RSI, MACD, ohlc, bollingerBands } = require('./utils');
 const {
   getCandles,
   getLastCandles,
@@ -243,6 +243,7 @@ const indicatorTest = (pair, interval) => {
     RSI(candles, 14);
     engulfing(candles.slice(l - 3, l - 1));
     fractal(candles);
+    bollingerBands(candles);
     console.log('---------------------------');
   }, 5000);
 };
