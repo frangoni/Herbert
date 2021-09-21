@@ -1,5 +1,5 @@
 const chalk = require('chalk');
-const log = true;
+const log = false;
 const ohlc = {
   open: 1,
   high: 2,
@@ -12,7 +12,7 @@ const MA = (candles, q) => {
   candles.slice(candles.length - q, candles.length).map(candle => {
     total += Number(candle[ohlc.close]);
   });
-  log && console.log(chalk.green(`MA(${q}) = ${total / q}`));
+  log && console.log(chalk.green(`MA(${q})= ${total / q}`));
   return total / q;
 };
 
@@ -26,7 +26,7 @@ const EMA = (candles, q) => {
     value = Number(candle[ohlc.close]) * k + value * (1 - k);
     EMAs.push(value);
   });
-  log && console.log(chalk.green(`EMA(${q}) = ${EMAs.pop()}`));
+  log && console.log(chalk.green(`EMA(${q})= ${EMAs.pop()}`));
   return EMAs.pop();
 };
 
@@ -52,7 +52,7 @@ const bollingerBands = (candles, q = 20) => {
   let upper = middle + 2 * std;
   let lower = middle - 2 * std;
   log && console.log(chalk.greenBright(`---------------BOLLINGER BANDS---------------`));
-  log && console.log(chalk.green(`Upper: ${upper}\nMiddle: ${middle}\nLower:${lower}`));
+  log && console.log(chalk.green(`Upper: ${upper}\nMiddle: ${middle}\nLower: ${lower}`));
   return { upper, middle, lower };
 };
 
@@ -62,17 +62,26 @@ const RSI = (candles, q = 14) => {
   let avgLoss = 0;
   //smooth
   let k = 2 / (q + 1);
+
   candles.slice(l - q, l).map(candle => {
     let value = (candle[ohlc.close] - candle[ohlc.open]) / q;
+
+    // EMA's Smoothing Method
+    /* value > 0
+      ? (avgWin = k * value + (1 - k) * avgWin)
+      : (avgLoss = k * Math.abs(value) + (1 - k) * avgLoss); */
+
+    //Wilder’s Smoothing Method
     value > 0
-      ? (avgWin = value * k + avgWin * (1 - k))
-      : (avgLoss = (value * k + avgLoss * (1 - k)) * -1);
+      ? (avgWin = value * (1 / q) + ((q - 1) / q) * avgWin)
+      : (avgLoss = Math.abs(value) * (1 / q) + ((q - 1) / q) * avgLoss);
   });
 
   let rs = avgWin / avgLoss;
   let rsi = 100 - 100 / (1 + rs);
 
-  log && console.log(chalk.green(`RSI(${q})= ` + rsi));
+  log && console.log(chalk.green(`RSI(${q})= ${rsi}`));
+  return rsi;
 };
 
 const engulfing = candles => {
@@ -141,8 +150,8 @@ const MACD = candles => {
   const macd = ema12.pop() - ema26.pop();
   const signal = getSignal(macdHist);
 
-  log && console.log(chalk.green(`MACD = ${macd}`));
-  log && console.log(chalk.green(`SIGNAL = ${signal}`));
+  log && console.log(chalk.green(`MACD= ${macd}`));
+  log && console.log(chalk.green(`SIGNAL= ${signal}`));
   return { macd, signal };
 };
 

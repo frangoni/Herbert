@@ -1,5 +1,13 @@
-const { indicatorTest, estrategia2, grid, estrategia1, rsimacd } = require('./strategies');
+const {
+  indicatorTest,
+  estrategia2,
+  grid,
+  estrategia1,
+  rsimacd,
+  bollingerBandsCross,
+} = require('./strategies');
 const { greet } = require('./greet');
+const { ganeONo } = require('./controller');
 
 const pairs = {
   eth: 'ETHUSDT',
@@ -8,13 +16,12 @@ const pairs = {
   link: 'LINKUSDT',
   sol: 'SOLUSDT',
   eos: 'EOSUSDT',
-  linketh: 'LINKETH',
+  icp: 'ICPUSDT',
 };
 const interval = '15m';
 
 greet();
 
-/* estrategia1(pairs.eth, interval);
-rsimacd(pairs.sol, interval); */
-
-indicatorTest(pairs.sol, interval);
+/*bollingerBandsCross(pairs.link, interval);
+ indicatorTest(pairs.sol, interval); 
+ganeONo(pairs.sol);*/

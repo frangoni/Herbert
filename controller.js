@@ -2,7 +2,8 @@ require('dotenv').config();
 const axios = require('axios');
 const crypto = require('crypto');
 const { apiKey, apiSecret } = process.env;
-const apiEP = 'https://fapi.binance.com/fapi';
+const apiEP = 'https://api.binance.com/api';
+const fapiEP = 'https://fapi.binance.com/fapi';
 const { sub } = require('date-fns');
 
 const signature = query => {
@@ -14,6 +15,11 @@ const api = axios.create({
   headers: { 'X-MBX-APIKEY': apiKey },
 });
 
+const fapi = axios.create({
+  baseURL: fapiEP,
+  headers: { 'X-MBX-APIKEY': apiKey },
+});
+
 const getOpenOrders = async symbol => {
   try {
     const timestamp = Date.now();
@@ -21,7 +27,20 @@ const getOpenOrders = async symbol => {
     const orders = await api.get('/v3/openOrders', {
       params: { timestamp, symbol, signature: signature(query) },
     });
-    console.log(orders.data);
+    return orders.data;
+  } catch (error) {
+    console.log(error.response);
+  }
+};
+
+const getAllOrders = async symbol => {
+  try {
+    const timestamp = Date.now();
+    const query = `timestamp=${timestamp}&symbol=${symbol}`;
+    const orders = await api.get('/v3/allOrders ', {
+      params: { timestamp, symbol, signature: signature(query) },
+    });
+    return orders.data;
   } catch (error) {
     console.log(error.response);
   }
@@ -32,7 +51,7 @@ const createMarketOrder = async (symbol, side = 'BUY') => {
   try {
     const timestamp = Date.now();
     const query = `symbol=${symbol}&side=${side}&type=${type}&quantity=${5}timestamp=${timestamp}`;
-    const order = await api.post('/v3/order/test', {
+    const order = await fapi.post('/v3/order/test', {
       params: { timestamp, symbol, side, type, quantity: 5, signature: signature(query) },
     });
     console.log(order);
@@ -44,7 +63,7 @@ const createMarketOrder = async (symbol, side = 'BUY') => {
 
 const getCandles = async (symbol, interval) => {
   try {
-    const candles = await api.get('/v1/klines', {
+    const candles = await fapi.get('/v1/klines', {
       params: {
         interval,
         symbol,
@@ -52,7 +71,7 @@ const getCandles = async (symbol, interval) => {
     });
     return candles.data;
   } catch (error) {
-    console.log('error :', error);
+    console.log('error :', error.response);
     return await getCandles(symbol, interval);
   }
 };
@@ -81,7 +100,7 @@ const getLastCandles = async (symbol, interval, q) => {
   let startTime = sub(new Date(), amount).getTime();
 
   try {
-    const candles = await api.get('/v1/klines', {
+    const candles = await fapi.get('/v1/klines', {
       params: {
         interval,
         symbol,
@@ -106,4 +125,28 @@ const getMarketInfo = async () => {
   }
 };
 
-module.exports = { getCandles, getOpenOrders, getLastCandles, createMarketOrder, getMarketInfo };
+const ganeONo = async symbol => {
+  const orders = await getAllOrders(symbol);
+  console.log('orders :', orders.length);
+  let buy = 0;
+  let sell = 0;
+  orders.forEach(order => {
+    const { price, executedQty } = order;
+    const value = price * executedQty;
+    if (order.status == 'FILLED') {
+      order.side == 'BUY' ? (buy += value) : (sell += value);
+    }
+  });
+  const result = sell - buy;
+  console.log(`Tu resultado con el par ${symbol} fue de $${result}`);
+};
+
+module.exports = {
+  getCandles,
+  getOpenOrders,
+  getLastCandles,
+  createMarketOrder,
+  getMarketInfo,
+  getAllOrders,
+  ganeONo,
+};
