@@ -1,12 +1,6 @@
 const chalk = require('chalk');
 const { MA, EMA, engulfing, fractal, RSI, MACD, ohlc, bollingerBands } = require('./utils');
-const {
-  getCandles,
-  getLastCandles,
-  getOpenOrders,
-  createMarketOrder,
-  getMarketInfo,
-} = require('./controller');
+const { getCandles, getLastCandles, getOpenOrders, createMarketOrder, getMarketInfo } = require('./controller');
 
 const sleep = ms => {
   return new Promise(resolve => setTimeout(resolve, ms));
@@ -282,6 +276,103 @@ const rsimacd = async (pair, interval) => {
   rsimacd(pair, interval);
 };
 
+const semaforo = async (pair, interval) => {
+  let buy = false;
+  let sell = false;
+  let cruce = true;
+  let candles;
+  let ema4;
+  let ema9;
+  let ema18;
+  let buyPrice;
+  let sellPrice;
+  console.log(`ESTRATEGIA SEMAFORO CON PAR: ${pair} EN INTERVALO: ${interval}`);
+  try {
+    //ANALISIS DE ESCENARIO
+    while (!buy && !sell) {
+      candles = await getCandles(pair, interval);
+      ema4 = EMA(candles, 4);
+      ema9 = EMA(candles, 9);
+      ema18 = EMA(candles, 18);
+      if (ema4 < ema9 && ema9 < ema18) {
+        buy = true;
+      }
+      if (ema4 > ema9 && ema9 > ema18) {
+        sell = true;
+      }
+    }
+    console.log(buy ? 'ESCENARIO LONG' : 'ESCENARIO SHORT');
+    //INICIAR POSICIÓN
+    if (buy) {
+      while (cruce) {
+        candles = await getCandles(pair, interval);
+        ema4 = EMA(candles, 4);
+        ema18 = EMA(candles, 18);
+        if (ema4 > ema18) {
+          buyPrice = candles[candles.length - 1][ohlc.close];
+          //LONG ORDER
+          cruce = false;
+        }
+      }
+    }
+
+    if (sell) {
+      while (cruce) {
+        candles = await getCandles(pair, interval);
+        ema4 = EMA(candles, 4);
+        ema18 = EMA(candles, 18);
+        if (ema4 < ema18) {
+          buyPrice = candles[candles.length - 1][ohlc.close];
+          //SHORT ORDER
+          cruce = false;
+        }
+      }
+    }
+    console.log(chalk.magentaBright(new Date()));
+    console.log(chalk.greenBright('CRUZÓ'));
+    console.log(chalk.greenBright(`El precio de compra fue de ${buyPrice}`));
+    console.log(chalk.greenBright('Esperando cruce para salir...'));
+    console.log(chalk.magentaBright('-------------------------------'));
+    await sleep(20000);
+
+    //SACAR POSICION
+    //cruce = false
+    if (buy) {
+      while (!cruce) {
+        candles = await getCandles(pair, interval);
+        ema4 = EMA(candles, 4);
+        ema9 = EMA(candles, 9);
+        if (ema4 < ema9) {
+          sellPrice = candles[candles.length - 1][ohlc.close];
+          cruce = false;
+        }
+      }
+    }
+
+    if (sell) {
+      while (!cruce) {
+        candles = await getCandles(pair, interval);
+        ema4 = EMA(candles, 4);
+        ema9 = EMA(candles, 9);
+        if (ema4 > ema9) {
+          sellPrice = candles[candles.length - 1][ohlc.close];
+          cruce = false;
+        }
+      }
+    }
+
+    console.log(chalk.magentaBright(new Date()));
+    console.log(chalk.greenBright(`El precio de venta fue de ${sellPrice}`));
+    const result = `El resultado de la orden fue de ${(sellPrice / buyPrice - 1) * 100}%`;
+    let color = sellPrice - buyPrice > 0 ? chalk.greenBright : chalk.red;
+    console.log(color(result));
+  } catch (error) {
+    console.log('error :', error);
+  }
+
+  semaforo(pair);
+};
+
 const indicatorTest = (pair, interval) => {
   const handleHour = str => {
     return str.toString().length == 1 ? `0${str}` : str;
@@ -308,4 +399,4 @@ const indicatorTest = (pair, interval) => {
   }, 5000);
 };
 
-module.exports = { EMAcross, EMAchannels, grid, indicatorTest, rsimacd, bollingerBandsCross };
+module.exports = { EMAcross, EMAchannels, grid, indicatorTest, rsimacd, bollingerBandsCross, semaforo };

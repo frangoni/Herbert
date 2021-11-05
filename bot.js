@@ -5,6 +5,7 @@ const {
   estrategia1,
   rsimacd,
   bollingerBandsCross,
+  semaforo,
 } = require('./strategies');
 const { greet } = require('./greet');
 const { ganeONo } = require('./controller');
@@ -18,10 +19,8 @@ const pairs = {
   eos: 'EOSUSDT',
   icp: 'ICPUSDT',
 };
-const interval = '15m';
+const interval = '5m';
 
 greet();
 
-/*bollingerBandsCross(pairs.link, interval);
- indicatorTest(pairs.sol, interval); 
-ganeONo(pairs.sol);*/
+semaforo(pairs.sol, interval);
