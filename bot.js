@@ -18,6 +18,7 @@ const pairs = {
   sol: 'SOLUSDT',
   eos: 'EOSUSDT',
   icp: 'ICPUSDT',
+  mana: 'MANAUSDT',
 };
 const interval = '5m';
 

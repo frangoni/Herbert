@@ -71,7 +71,7 @@ const getCandles = async (symbol, interval) => {
     });
     return candles.data;
   } catch (error) {
-    console.log('error :', error.response);
+    console.log('error :', error);
     return await getCandles(symbol, interval);
   }
 };
