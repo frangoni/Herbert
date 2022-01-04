@@ -20,8 +20,9 @@ const pairs = {
   icp: 'ICPUSDT',
   mana: 'MANAUSDT',
 };
-const interval = '5m';
+const interval = '1h';
+const tick = 5000;
 
 greet();
 
-semaforo(pairs.sol, interval);
+semaforo(pairs.sol, interval, tick);

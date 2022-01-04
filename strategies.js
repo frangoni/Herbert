@@ -276,7 +276,7 @@ const rsimacd = async (pair, interval) => {
   rsimacd(pair, interval);
 };
 
-const semaforo = async (pair, interval) => {
+const semaforo = async (pair, interval, tick, acc = 0) => {
   let buy = false;
   let sell = false;
   let cruce = true;
@@ -302,7 +302,6 @@ const semaforo = async (pair, interval) => {
         sell = true;
       }
     }
-    await sleep(5000);
   }
 
   if (buy) console.log('ESCENARIO LONG');
@@ -315,12 +314,13 @@ const semaforo = async (pair, interval) => {
         ema4 = EMA(candles, 4);
         ema18 = EMA(candles, 18);
         if (ema4 > ema18) {
+          candles = await getCandles(pair, interval);
           buyPrice = candles[candles.length - 1][ohlc.close];
           //LONG ORDER
           cruce = false;
         }
       }
-      await sleep(5000);
+      await sleep(tick);
     }
   }
 
@@ -331,12 +331,13 @@ const semaforo = async (pair, interval) => {
         ema4 = EMA(candles, 4);
         ema18 = EMA(candles, 18);
         if (ema4 < ema18) {
+          candles = await getCandles(pair, interval);
           buyPrice = candles[candles.length - 1][ohlc.close];
           //SHORT ORDER
           cruce = false;
         }
       }
-      await sleep(5000);
+      await sleep(tick);
     }
   }
 
@@ -355,11 +356,12 @@ const semaforo = async (pair, interval) => {
         ema4 = EMA(candles, 4);
         ema9 = EMA(candles, 9);
         if (ema4 < ema9) {
+          candles = await getCandles(pair, interval);
           sellPrice = candles[candles.length - 1][ohlc.close];
           cruce = true;
         }
       }
-      await sleep(5000);
+      await sleep(tick);
     }
   }
 
@@ -370,22 +372,22 @@ const semaforo = async (pair, interval) => {
         ema4 = EMA(candles, 4);
         ema9 = EMA(candles, 9);
         if (ema4 > ema9) {
+          candles = await getCandles(pair, interval);
           sellPrice = candles[candles.length - 1][ohlc.close];
           cruce = true;
         }
       }
-      await sleep(5000);
+      await sleep(tick);
     }
   }
   console.log(chalk.magentaBright(new Date()));
   console.log(chalk.greenBright(`El precio de venta fue de ${sellPrice}`));
-  const result = `El resultado de la orden fue de ${
-    buy ? (sellPrice / buyPrice - 1) * 100 : (buyPrice / sellPrice - 1) * 100
-  }%`;
-  let color = sellPrice - buyPrice > 0 ? chalk.greenBright : chalk.red;
-  console.log(color(result));
-
-  semaforo(pair, interval);
+  const result = buy ? (sellPrice / buyPrice - 1) * 100 : (buyPrice / sellPrice - 1) * 100;
+  let color = result > 0 ? chalk.greenBright : chalk.red;
+  acc += result;
+  console.log(`El resultado de la orden fue de ${color(result)}%`);
+  console.log(`El acumulado hasta el momento es de ${acc > 0 ? chalk.greenBright(acc) : chalk.red(acc)}%`);
+  semaforo(pair, interval, tick, acc);
 };
 
 const indicatorTest = (pair, interval) => {
