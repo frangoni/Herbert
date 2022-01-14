@@ -277,15 +277,9 @@ const rsimacd = async (pair, interval) => {
 };
 
 const semaforo = async (pair, interval, tick, acc = 0) => {
-  let buy = false;
-  let sell = false;
   let cruce = true;
-  let candles;
-  let ema4;
-  let ema9;
-  let ema18;
-  let buyPrice;
-  let sellPrice;
+  let buy, sell, candles, ema4, ema9, ema18, buyPrice, sellPrice;
+  buy = sell = false;
   console.log(`ESTRATEGIA SEMAFORO CON PAR: ${pair} EN INTERVALO: ${interval}`);
 
   //ANALISIS DE ESCENARIO
