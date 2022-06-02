@@ -9,8 +9,7 @@ const sleep = ms => {
 const EMAcross = async (pair, interval) => {
   let cruce = true;
   let candles;
-  let ema10;
-  let ema20;
+  let ema5, ema10, ema20;
   let date;
   let buyPrice;
   let sellPrice;
@@ -136,52 +135,54 @@ const bollingerBandsCross = async (pair, interval) => {
   bollingerBandsCross(pair);
 };
 
-const EMAchannels = async (pair, interval) => {
+const MAchannels = async (pair, interval) => {
   let buy = false;
   let sell = false;
   let fractal = false;
   let candles;
-  let ema20;
-  let ema50;
-  let ema100;
+  let ma20;
+  let ma55;
+  let ma200;
   let close;
 
   while (!buy || !sell) {
     candles = await getCandles(pair, interval);
-    ema20 = EMA(candles, 20);
-    ema50 = EMA(candles, 50);
-    ema100 = EMA(candles, 100);
+    ma20 = MA(candles, 20);
+    ma55 = MA(candles, 55);
+    ma200 = MA(candles, 100);
     close = candles[candles.length - 1][ohlc.close];
 
-    if (ema20 > ema50 && ema50 > ema100) {
-      buy = ema20 > close && close > ema50 ? true : false;
+    if (ma20 > ma55 && ma55 > ma200) {
+      buy = ma20 > close && close > ma55 ? true : false;
     }
-    if (ema100 > ema50 && ema50 > ema20) {
-      sell = ema20 > close && close > ema50 ? true : false;
+    if (ma200 > ma55 && ma55 > ma20) {
+      sell = ma20 > close && close > ma55 ? true : false;
     }
   }
 
   //A CHEQUEAR
 
-  while (fractal) {
+  while (!fractal) {
     candles = await getLastCandles(pair, interval, 6);
     let trend = fractal(candles);
     if (trend == 'bullish' && buy) {
+      fractal = true;
       /*PLACE BUY ORDER
-          SL = EMA 50
+          SL = MA 55
           TP = 1.5 x RISK
          ((ep - sl) * 1.5) + ep        
           */
     }
     if (trend == 'bearish' && sell) {
+      fractal = true;
       /*PLACE SELL ORDER
-          SL = EMA 50
+          SL = MA 55
           TP = -1.5 x RISK        
           ((ep - sl) * -1.5) - ep
           */
     }
   }
-  EMAchannels(pair);
+  MAchannels(pair);
 };
 
 const grid = async (pair, interval) => {
@@ -384,6 +385,64 @@ const semaforo = async (pair, interval, tick, acc = 0) => {
   semaforo(pair, interval, tick, acc);
 };
 
+const donchainChannels = async (pair, interval) => {
+  let cruce = true;
+  let candles;
+  let rsi;
+  let date;
+  let buyPrice;
+  let sellPrice;
+  let sl;
+
+  console.log(chalk.cyanBright('Donchain Channels'));
+  console.log(chalk.cyanBright(`Pair: ${pair}\nInterval: ${interval} `));
+  console.log(chalk.magentaBright('-------------------------------'));
+
+  try {
+    while (cruce) {
+      candles = await getCandles(pair, interval);
+      if (candles?.length) {
+        let { upper, middle, lower } = bollingerBands(candles);
+        rsi = RSI(candles, 14);
+        if (candles.pop()[ohlc.low] < lower && rsi < 35) {
+          date = Date.now();
+          cruce = false;
+          buyPrice = candles.pop()[ohlc.close];
+        }
+      }
+      await sleep(2500);
+    }
+
+    console.log(chalk.greenBright('Toca banda inferior'));
+    console.log(chalk.greenBright(`El precio de compra fue de ${buyPrice}`));
+    console.log(chalk.magentaBright('-------------------------------'));
+    await sleep(300000);
+
+    while (!cruce) {
+      candles = await getCandles(pair, interval);
+      if (candles?.length) {
+        let { upper, middle, lower } = bollingerBands(candles);
+
+        if (candles.pop()[ohlc.high] > upper) {
+          date = Date.now();
+          cruce = true;
+          sellPrice = candles[candles.length - 1][ohlc.close];
+        }
+      }
+    }
+    const result = `El resultado de la orden fue de ${(sellPrice / buyPrice - 1) * 100}%`;
+    let color = sellPrice - buyPrice > 0 ? chalk.greenBright : chalk.red;
+
+    console.log(chalk.magentaBright(new Date()));
+    console.log(chalk.greenBright('Toca banda superior...'));
+    console.log(chalk.greenBright(`El precio de venta fue de ${sellPrice}`));
+    console.log(color(result));
+  } catch (error) {
+    console.log('error :', error);
+  }
+  bollingerBandsCross(pair);
+};
+
 const indicatorTest = (pair, interval) => {
   const handleHour = str => {
     return str.toString().length == 1 ? `0${str}` : str;
@@ -410,4 +469,4 @@ const indicatorTest = (pair, interval) => {
   }, 5000);
 };
 
-module.exports = { EMAcross, EMAchannels, grid, indicatorTest, rsimacd, bollingerBandsCross, semaforo };
+module.exports = { EMAcross, MAchannels, grid, indicatorTest, rsimacd, bollingerBandsCross, semaforo };

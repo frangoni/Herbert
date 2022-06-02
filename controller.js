@@ -37,7 +37,7 @@ const getAllOrders = async symbol => {
   try {
     const timestamp = Date.now();
     const query = `timestamp=${timestamp}&symbol=${symbol}`;
-    const orders = await api.get('/v3/allOrders ', {
+    const orders = await fapi.get('/v1/allOrders ', {
       params: { timestamp, symbol, signature: signature(query) },
     });
     return orders.data;
@@ -117,7 +117,6 @@ const getLastCandles = async (symbol, interval, q) => {
 const getMarketInfo = async () => {
   try {
     const info = await api.get('/v1/exchangeInfo');
-    console.log('info :', info);
     return info;
   } catch (error) {
     console.log('MARKET INFO', error);
@@ -125,9 +124,18 @@ const getMarketInfo = async () => {
   }
 };
 
+const getTopGainers = async () => {
+  try {
+    const ticker = await fapi.get('/v1/ticker/24hr');
+    ticker.data.sort((a, b) => b.priceChangePercent - a.priceChangePercent);
+    return ticker.data.slice(0, 5);
+  } catch (error) {
+    console.log('error :', error);
+  }
+};
+
 const ganeONo = async symbol => {
   const orders = await getAllOrders(symbol);
-  console.log('orders :', orders.length);
   let buy = 0;
   let sell = 0;
   orders.forEach(order => {
@@ -149,4 +157,5 @@ module.exports = {
   getMarketInfo,
   getAllOrders,
   ganeONo,
+  getTopGainers,
 };

@@ -72,9 +72,7 @@ const RSI = (candles, q = 14) => {
       : (avgLoss = k * Math.abs(value) + (1 - k) * avgLoss); */
 
     //Wilder’s Smoothing Method
-    value > 0
-      ? (avgWin = value * (1 / q) + ((q - 1) / q) * avgWin)
-      : (avgLoss = Math.abs(value) * (1 / q) + ((q - 1) / q) * avgLoss);
+    value > 0 ? (avgWin = value * (1 / q) + ((q - 1) / q) * avgWin) : (avgLoss = Math.abs(value) * (1 / q) + ((q - 1) / q) * avgLoss);
   });
 
   let rs = avgWin / avgLoss;
@@ -113,19 +111,11 @@ const engulfing = candles => {
 
 const fractal = candles => {
   const l = candles.length;
-  //NO SE PUEDE TESTEAR SOBRE VELA ACTUAL (A CHEQUEAR PORQUE BINANCE LO HACE)
+
   const [izq2, izq1, medio, der1, der2] = candles.slice(l - 6, l - 1).map(candle => candle);
 
-  const bearingConditions =
-    medio[ohlc.high] > izq1[ohlc.high] &&
-    medio[ohlc.high] > izq2[ohlc.high] &&
-    medio[ohlc.high] > der1[ohlc.high] &&
-    medio[ohlc.high] > der2[ohlc.high];
-  const bullishConditions =
-    medio[ohlc.low] < izq1[ohlc.low] &&
-    medio[ohlc.low] < izq2[ohlc.low] &&
-    medio[ohlc.low] < der1[ohlc.low] &&
-    medio[ohlc.low] < der2[ohlc.low];
+  const bearingConditions = medio[ohlc.high] > izq1[ohlc.high] && medio[ohlc.high] > izq2[ohlc.high] && medio[ohlc.high] > der1[ohlc.high] && medio[ohlc.high] > der2[ohlc.high];
+  const bullishConditions = medio[ohlc.low] < izq1[ohlc.low] && medio[ohlc.low] < izq2[ohlc.low] && medio[ohlc.low] < der1[ohlc.low] && medio[ohlc.low] < der2[ohlc.low];
 
   if (bearingConditions) {
     log && console.log(chalk.magenta('Bearish Williams Fractal'));
@@ -197,6 +187,34 @@ const fibonacci = candles => {
     if (perc != [0, 1, 5]) fibo[perc] = fibo[perc] * avg; //VER CALCULO PARA OTROS COEF
   }
   return fibo;
+};
+
+const pivotLines = candles => {
+  //NO DA RESULTADO CORRECTO
+  let lastCandle = candles[candles.length - 1];
+
+  let pivotPoint = (Number(lastCandle[ohlc.high]) + Number(lastCandle[ohlc.low]) + Number(lastCandle[ohlc.close])) / 3;
+  let range = Number(lastCandle[ohlc.high]) - Number(lastCandle[ohlc.low]);
+
+  let r1 = 2 * pivotPoint - Number(lastCandle[ohlc.low]);
+  let s1 = 2 * pivotPoint - Number(lastCandle[ohlc.high]);
+  let r2 = pivotPoint - s1 + r1;
+  let s2 = pivotPoint - (r1 - s1);
+  let r3 = pivotPoint - s2 + r2;
+  let s3 = pivotPoint - (r2 - s2);
+
+  let pivotLines = {
+    pivotPoint,
+    s1,
+    s2,
+    s3,
+    r1,
+    r2,
+    r3,
+  };
+
+  console.log('pivotLines :', pivotLines);
+  return pivotLines;
 };
 
 module.exports = { MA, EMA, engulfing, fractal, MACD, RSI, bollingerBands, ohlc };

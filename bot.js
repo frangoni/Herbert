@@ -1,6 +1,7 @@
 const { indicatorTest, estrategia2, grid, estrategia1, rsimacd, bollingerBandsCross, semaforo } = require('./strategies');
 const { greet } = require('./greet');
-const { ganeONo } = require('./controller');
+const { ganeONo, getTopGainers, getCandles } = require('./controller');
+const { MA, pivotLines } = require('./utils');
 
 const pairs = {
   eth: 'ETHUSDT',
@@ -17,9 +18,9 @@ const pairs = {
   illuvium: 'ILVUSDT',
   cardano: 'ADAUSDT',
 };
-const interval = '1h';
+const interval = '15m';
 const tick = 5000;
 
 greet();
 
-semaforo(pairs.luna, interval, tick);
+semaforo(pairs.sol, interval, tick);
