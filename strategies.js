@@ -1,5 +1,5 @@
 const chalk = require('chalk');
-const { MA, EMA, engulfing, fractal, RSI, MACD, ohlc, bollingerBands } = require('./utils');
+const { MA, EMA, engulfing, fractal, RSI, MACD, ohlc, bollingerBands } = require('./indicators');
 const { getCandles, getLastCandles, getOpenOrders, createMarketOrder, getMarketInfo } = require('./controller');
 
 const sleep = ms => {

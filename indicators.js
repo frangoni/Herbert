@@ -190,20 +190,23 @@ const fibonacci = candles => {
 };
 
 const pivotLines = candles => {
-  //NO DA RESULTADO CORRECTO
-  let lastCandle = candles[candles.length - 1];
+  const previousCandle = candles[candles.length - 2];
+  const close = Number(previousCandle[ohlc.close]);
+  const high = Number(previousCandle[ohlc.high]);
+  const low = Number(previousCandle[ohlc.low]);
 
-  let pivotPoint = (Number(lastCandle[ohlc.high]) + Number(lastCandle[ohlc.low]) + Number(lastCandle[ohlc.close])) / 3;
-  let range = Number(lastCandle[ohlc.high]) - Number(lastCandle[ohlc.low]);
+  const pivotPoint = (high + low + close) / 3;
+  const range = high - low;
 
-  let r1 = 2 * pivotPoint - Number(lastCandle[ohlc.low]);
-  let s1 = 2 * pivotPoint - Number(lastCandle[ohlc.high]);
-  let r2 = pivotPoint - s1 + r1;
-  let s2 = pivotPoint - (r1 - s1);
-  let r3 = pivotPoint - s2 + r2;
-  let s3 = pivotPoint - (r2 - s2);
+  //FIBONACCI PIVOT
+  const r1 = pivotPoint + range * 0.382;
+  const s1 = pivotPoint - range * 0.382;
+  const r2 = pivotPoint + range * 0.618;
+  const s2 = pivotPoint - range * 0.618;
+  const r3 = pivotPoint + range;
+  const s3 = pivotPoint - range;
 
-  let pivotLines = {
+  const pivotLines = {
     pivotPoint,
     s1,
     s2,
@@ -212,9 +215,7 @@ const pivotLines = candles => {
     r2,
     r3,
   };
-
-  console.log('pivotLines :', pivotLines);
   return pivotLines;
 };
 
-module.exports = { MA, EMA, engulfing, fractal, MACD, RSI, bollingerBands, ohlc };
+module.exports = { MA, EMA, engulfing, fractal, MACD, RSI, bollingerBands, ohlc, pivotLines };
