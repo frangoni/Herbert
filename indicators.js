@@ -171,7 +171,7 @@ const getSignal = macdHist => {
 };
 
 const fibonacci = candles => {
-  //NO FUNCIONA
+  //RESULTADOS INCORRECTOS
   let min = 0;
   let max = 0;
 
@@ -190,6 +190,7 @@ const fibonacci = candles => {
 };
 
 const pivotLines = candles => {
+  //LAS VELAS TIENEN QUE SER SI O SI DIARIAS
   const previousCandle = candles[candles.length - 2];
   const close = Number(previousCandle[ohlc.close]);
   const high = Number(previousCandle[ohlc.high]);
@@ -206,16 +207,7 @@ const pivotLines = candles => {
   const r3 = pivotPoint + range;
   const s3 = pivotPoint - range;
 
-  const pivotLines = {
-    pivotPoint,
-    s1,
-    s2,
-    s3,
-    r1,
-    r2,
-    r3,
-  };
-  return pivotLines;
+  return { r1, s1, r2, s2, r3, s3, pivotPoint };
 };
 
 module.exports = { MA, EMA, engulfing, fractal, MACD, RSI, bollingerBands, ohlc, pivotLines };

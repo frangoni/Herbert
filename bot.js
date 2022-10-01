@@ -18,6 +18,7 @@ const pairs = {
   illuvium: 'ILVUSDT',
   cardano: 'ADAUSDT',
 };
+
 const interval = '15m';
 const tick = 5000;
 
@@ -28,4 +29,4 @@ const indicatorTest = async indicator => {
   indicator(candles);
 };
 
-indicatorTest(pivotLines);
+semaforo(pairs.sol, interval, tick);
