@@ -29,4 +29,6 @@ const indicatorTest = async indicator => {
   indicator(candles);
 };
 
+const port = process.env.PORT || 8080;
+
 semaforo(pairs.sol, interval, tick);
