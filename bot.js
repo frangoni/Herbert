@@ -28,5 +28,7 @@ const indicatorTest = async indicator => {
   const candles = await getCandles(pairs.btc, '1d');
   indicator(candles);
 };
+const port = process.env.PORT || 8080;
 
 semaforo(pairs.eth, interval, tick);
+
