@@ -19,7 +19,7 @@ const pairs = {
   cardano: 'ADAUSDT',
 };
 
-const interval = '15m';
+const interval = '5m';
 const tick = 5000;
 
 greet();
@@ -29,4 +29,4 @@ const indicatorTest = async indicator => {
   indicator(candles);
 };
 
-semaforo(pairs.sol, interval, tick);
+semaforo(pairs.eth, interval, tick);
