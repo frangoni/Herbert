@@ -111,7 +111,7 @@ const engulfing = candles => {
 	}
 };
 
-const fractal = candles => {
+const williamsFractal = candles => {
 	const l = candles.length;
 
 	const [izq2, izq1, medio, der1, der2] = candles.slice(l - 6, l - 1).map(candle => candle);
@@ -325,13 +325,13 @@ module.exports = {
 	MA,
 	EMA,
 	engulfing,
-	fractal,
+	williamsFractal,
 	MACD,
 	RSI,
 	bollingerBands,
-	ohlc,
 	pivotLines,
 	superTrend,
 	fibonacci,
 	EWO,
+	ohlc,
 };

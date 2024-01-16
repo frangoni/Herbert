@@ -1,5 +1,7 @@
 const chalk = require('chalk');
 const { sleep } = require('.');
+const { getCandles } = require('../api/controller');
+const { EMA } = require('../utils/indicators');
 
 const semaforo = async (pair, interval, tick, acc = 0) => {
 	let cruce = true;

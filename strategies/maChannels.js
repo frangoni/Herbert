@@ -1,5 +1,5 @@
-const chalk = require('chalk');
-const { sleep } = require('.');
+const { getCandles, getLastCandles } = require('../api/controller');
+const { MA, williamsFractal } = require('../utils/indicators');
 
 const MAchannels = async (pair, interval) => {
 	let buy = false;
@@ -30,7 +30,7 @@ const MAchannels = async (pair, interval) => {
 
 	while (!fractal) {
 		candles = await getLastCandles(pair, interval, 6);
-		let trend = fractal(candles);
+		let trend = williamsFractal(candles);
 		if (trend == 'bullish' && buy) {
 			fractal = true;
 			/*PLACE BUY ORDER

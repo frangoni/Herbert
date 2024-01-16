@@ -1,5 +1,7 @@
 const chalk = require('chalk');
 const { sleep } = require('.');
+const { getCandles } = require('../api/controller');
+const { ohlc, bollingerBands, RSI } = require('../utils/indicators');
 
 const bollingerBandsCross = async (pair, interval) => {
 	let cruce = true;

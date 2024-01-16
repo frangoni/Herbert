@@ -24,10 +24,10 @@ const get = async (endpoint, symbol, queryParams = '', options, isAuth = false) 
 	const params = isAuth ? { timestamp, signature: signature(query), ...options } : options;
 	try {
 		const res = await agent.get(endpoint, { params });
-		console.log('res :', res.data);
 		return res.data;
 	} catch (error) {
-		console.log('error :', error);
+		/* 
+		console.log('error :', error); */
 		return error;
 	}
 };

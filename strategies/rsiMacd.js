@@ -1,5 +1,7 @@
 const chalk = require('chalk');
 const { sleep } = require('.');
+const { getCandles } = require('../api/controller');
+const { MACD, RSI } = require('../utils/indicators');
 
 const rsimacd = async (pair, interval) => {
 	let macd;
