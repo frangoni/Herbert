@@ -2,8 +2,8 @@ require('dotenv').config();
 const axios = require('axios');
 const signature = require('./signature');
 const { apiKey } = process.env;
-const apiEP = 'https://api.binance.com/api';
-const fapiEP = 'https://fapi.binance.com/fapi';
+const apiEP = 'https://api.binance.us/api';
+const fapiEP = 'https://fapi.binance.us/fapi';
 
 const api = axios.create({
 	baseURL: apiEP,
@@ -28,6 +28,8 @@ const get = async (endpoint, symbol, queryParams = '', options, isAuth = false) 
 	} catch (error) {
 		console.log('Error Code :', error.code);
 		console.log('Error Cause:', error.cause);
+		console.log('Error Message:', error.message);
+
 		return error;
 	}
 };
@@ -42,7 +44,8 @@ const post = async (endpoint, symbol, queryParams = '', options) => {
 		});
 		return res.data;
 	} catch (error) {
-		console.log('error :', error);
+		console.log('Error Code :', error.code);
+		console.log('Error Cause:', error.cause);
 		return error;
 	}
 };
