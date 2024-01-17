@@ -53,7 +53,7 @@ const createMarketOrder = async (symbol, side = 'BUY') => {
 	const type = 'MARKET';
 	const queryParams = `&side=${side}&type=${type}&quantity=${5}`;
 	const options = { side, type, quantity: 5 };
-	return post('/v3/order', symbol, queryParams, options);
+	return post('/v3/order/test', symbol, queryParams, options);
 };
 
 module.exports = {
