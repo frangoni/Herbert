@@ -15,18 +15,18 @@ const fapi = axios.create({
 	headers: { 'X-MBX-APIKEY': apiKey },
 });
 
-const isFutures = false;
+const IS_FUTURES = false;
 
 const get = async (endpoint, symbol, queryParams = '', options, isAuth = false) => {
 	const timestamp = Date.now();
 	const query = `timestamp=${timestamp}&symbol=${symbol}` + queryParams;
-	const agent = isFutures ? fapi : api;
+	const agent = IS_FUTURES ? fapi : api;
 	const params = isAuth ? { timestamp, signature: signature(query), ...options } : options;
 	try {
 		const res = await agent.get(endpoint, { params });
 		return res.data;
 	} catch (error) {
-		console.log('Error message:', error.message);
+		console.log('Error cause:', error.cause);
 		return error;
 	}
 };
@@ -34,7 +34,7 @@ const get = async (endpoint, symbol, queryParams = '', options, isAuth = false) 
 const post = async (endpoint, symbol, queryParams = '', options) => {
 	const timestamp = Date.now();
 	const query = `timestamp=${timestamp}&symbol=${symbol}` + queryParams;
-	const agent = isFutures ? fapi : api;
+	const agent = IS_FUTURES ? fapi : api;
 	try {
 		const res = await agent.post(endpoint, {
 			params: { timestamp, symbol, signature: signature(query), ...options },

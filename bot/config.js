@@ -1,4 +1,4 @@
-const pairs = {
+const PAIRS = {
 	eth: 'ETHUSDT',
 	btc: 'BTCUSDT',
 	rsr: 'RSRUSDT',
@@ -15,9 +15,9 @@ const pairs = {
 };
 
 const CONFIG = {
-	interval: '5m',
+	interval: '15m',
 	tick: 3000,
-	pair: pairs.sol,
+	pair: PAIRS.sol,
 };
 
 module.exports = CONFIG;
