@@ -26,7 +26,8 @@ const get = async (endpoint, symbol, queryParams = '', options, isAuth = false) 
 		const res = await agent.get(endpoint, { params });
 		return res.data;
 	} catch (error) {
-		console.log('Error cause:', error.cause);
+		console.log('Error Code :', error.code);
+		console.log('Error Cause:', error.cause);
 		return error;
 	}
 };
