@@ -1,7 +1,7 @@
 const { MACD, EMA, RSI, engulfing, fractal, bollingerBands } = require('./indicators');
 
 const indicatorTest = (pair, interval) => {
-	const handleHour = str => {
+	const formatTime = str => {
 		return str.toString().length == 1 ? `0${str}` : str;
 	};
 	setInterval(async () => {
@@ -12,7 +12,7 @@ const indicatorTest = (pair, interval) => {
 		let seconds = now.getSeconds();
 		console.log(chalk.cyanBright('PAIR ' + pair));
 		console.log(chalk.cyanBright('INTERVAL ' + interval));
-		console.log(chalk.cyanBright(`${hours}:${handleHour(minutes)}:${handleHour(seconds)}`));
+		console.log(chalk.cyanBright(`${hours}:${formatTime(minutes)}:${formatTime(seconds)}`));
 		let l = candles.length;
 		MACD(candles);
 		EMA(candles, 5);

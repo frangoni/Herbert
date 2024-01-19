@@ -16,7 +16,7 @@ const PAIRS = {
 
 const CONFIG = {
 	interval: '15m',
-	tick: 3000,
+	tick: 10000,
 	pair: PAIRS.sol,
 };
 

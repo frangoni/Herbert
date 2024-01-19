@@ -2,8 +2,8 @@ require('dotenv').config();
 const axios = require('axios');
 const signature = require('./signature');
 const { apiKey } = process.env;
-const apiEP = 'https://api.binance.us/api';
-const fapiEP = 'https://fapi.binance.us/fapi';
+const apiEP = 'https://api.binance.com/api';
+const fapiEP = 'https://fapi.binance.com/fapi';
 
 const api = axios.create({
 	baseURL: apiEP,
@@ -22,6 +22,7 @@ const get = async (endpoint, symbol, queryParams = '', options, isAuth = false) 
 	const query = `timestamp=${timestamp}&symbol=${symbol}` + queryParams;
 	const agent = IS_FUTURES ? fapi : api;
 	const params = isAuth ? { timestamp, signature: signature(query), ...options } : options;
+
 	try {
 		const res = await agent.get(endpoint, { params });
 		return res.data;
@@ -38,6 +39,7 @@ const post = async (endpoint, symbol, queryParams = '', options) => {
 	const timestamp = Date.now();
 	const query = `timestamp=${timestamp}&symbol=${symbol}` + queryParams;
 	const agent = IS_FUTURES ? fapi : api;
+
 	try {
 		const res = await agent.post(endpoint, {
 			params: { timestamp, symbol, signature: signature(query), ...options },

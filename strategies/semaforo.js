@@ -4,6 +4,8 @@ const { getCandles } = require('../api/controller');
 const { EMA, ohlc } = require('../utils/indicators');
 
 const semaforo = async (pair, interval, tick, acc = 0) => {
+	const THRESHOLD_LONG = 0.95;
+	const THRESHOLD_SHORT = 1.05;
 	let cruce = true;
 	let buy, sell, candles, ema4, ema9, ema18, buyPrice, sellPrice;
 	buy = sell = false;
@@ -33,7 +35,7 @@ const semaforo = async (pair, interval, tick, acc = 0) => {
 			if (candles.length) {
 				ema4 = EMA(candles, 4);
 				ema18 = EMA(candles, 18);
-				if (ema4 > ema18) {
+				if (ema4 * THRESHOLD_LONG > ema18) {
 					candles = await getCandles(pair, interval);
 					buyPrice = candles[candles.length - 1][ohlc.close];
 					//LONG ORDER
@@ -50,7 +52,7 @@ const semaforo = async (pair, interval, tick, acc = 0) => {
 			if (candles.length) {
 				ema4 = EMA(candles, 4);
 				ema18 = EMA(candles, 18);
-				if (ema4 < ema18) {
+				if (ema4 * THRESHOLD_SHORT < ema18) {
 					candles = await getCandles(pair, interval);
 					buyPrice = candles[candles.length - 1][ohlc.close];
 					//SHORT ORDER
