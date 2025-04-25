@@ -41,10 +41,10 @@ const scalping = async (symbol = CONFIG.pair, interval = '5m') => {
 	// Initial scan
 	await analyzeMarket(symbol, interval);
 
-	// Set interval for continuous monitoring
+	/* 	// Set interval for continuous monitoring
 	setInterval(async () => {
 		await analyzeMarket(symbol, interval);
-	}, 60000); // Check every minute
+	}, 60000); // Check every minute */
 };
 
 const analyzeMarket = async (symbol, interval) => {
