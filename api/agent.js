@@ -2,6 +2,7 @@ require('dotenv').config();
 const axios = require('axios');
 const signature = require('./signature');
 const { apiKey } = process.env;
+console.log('apiKey :', apiKey);
 const apiEP = 'https://api.binance.com/api';
 const fapiEP = 'https://fapi.binance.com/fapi';
 

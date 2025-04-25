@@ -1,7 +1,9 @@
 const { greet } = require('./greet');
 const CONFIG = require('./config');
-const semaforo = require('../strategies/semaforo');
+const scalping = require('../strategies/ai');
+const performance = require('../utils/performance');
 
 greet();
 
-semaforo(CONFIG.pair, CONFIG.interval);
+performance.initPerformanceTracking(CONFIG.positionSize);
+scalping(CONFIG.pair, CONFIG.interval);

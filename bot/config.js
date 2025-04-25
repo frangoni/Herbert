@@ -18,6 +18,7 @@ const CONFIG = {
 	interval: '15m',
 	tick: 10000,
 	pair: PAIRS.sol,
+	positionSize: 5,
 };
 
 module.exports = CONFIG;
