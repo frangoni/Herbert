@@ -5,6 +5,7 @@ const { apiKey } = process.env;
 console.log('apiKey :', apiKey);
 const apiEP = 'https://api.binance.com/api';
 const fapiEP = 'https://fapi.binance.com/fapi';
+const testnetEP = 'https://testnet.binance.vision/api';
 
 const api = axios.create({
 	baseURL: apiEP,
@@ -16,12 +17,18 @@ const fapi = axios.create({
 	headers: { 'X-MBX-APIKEY': apiKey },
 });
 
+const testnet = axios.create({
+	baseURL: testnetEP,
+	headers: { 'X-MBX-APIKEY': apiKey },
+});
+
 const IS_FUTURES = false;
+const IS_TESTNET = true;
 
 const get = async (endpoint, symbol, queryParams = '', options, isAuth = false) => {
 	const timestamp = Date.now();
 	const query = `timestamp=${timestamp}&symbol=${symbol}` + queryParams;
-	const agent = IS_FUTURES ? fapi : api;
+	const agent = IS_TESTNET ? testnet : IS_FUTURES ? fapi : api;
 	const params = isAuth ? { timestamp, signature: signature(query), ...options } : options;
 
 	try {
