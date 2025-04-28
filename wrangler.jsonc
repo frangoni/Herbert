@@ -1,5 +1,6 @@
 {
 	"name": "herbert",
 	"compatibility_date": "2025-04-28",
-	"main": "bot/index.js"
+	"main": "bot/index.js",
+	"compatibility_flags": ["nodejs_compat"]
 }
