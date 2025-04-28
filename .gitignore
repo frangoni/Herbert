@@ -129,3 +129,6 @@ bundle.js
 bundle.js.map
 
 bot.md
+
+#GITHUB WORKFLOWS
+.github/workflows/*.yml

@@ -1,0 +1,5 @@
+{
+	"name": "worker-name",
+	"compatibility_date": "2025-04-28",
+	"main": "bot/index.js"
+}

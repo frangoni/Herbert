@@ -3,7 +3,7 @@
 	"version": "1.0.0",
 	"description": "",
 	"scripts": {
-		"start": "node bot/bot.js"
+		"start": "node bot/index.js"
 	},
 	"author": "",
 	"license": "ISC",
